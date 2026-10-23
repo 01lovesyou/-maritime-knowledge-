@@ -435,6 +435,13 @@
     .map-marker { position: absolute; display: grid; place-items: center; width: 34px; height: 34px; color: var(--color-white); background: var(--color-danger); border: 2px solid var(--color-white); border-radius: 50%; box-shadow: 0 0 16px var(--glow-primary); cursor: pointer; transform: translate(-50%,-50%); }
     .map-marker:hover { transform: translate(-50%,-50%) scale(1.2); }
     .map-legend { position: absolute; right: 16px; bottom: 14px; color: var(--text-secondary); font-size: 12px; }
+  
+    .btn-primary { background-size: 180% 180%; background-position: 0 50%; }
+    .btn-primary:hover { background-position: 100% 50%; }
+    .sprite-body { animation: spriteAura 3.8s ease-in-out infinite; }
+    @keyframes spriteAura { 50% { box-shadow: 0 0 28px color-mix(in srgb, var(--sprite-color) 42%, transparent); } }
+    .konami-shake .glass-card { animation: deckShake .18s ease-in-out infinite alternate; }
+    @keyframes deckShake { from { transform: translateX(-2px) rotate(-.2deg); } to { transform: translateX(2px) rotate(.2deg); } }
   </style>
 </head>
 <body>
