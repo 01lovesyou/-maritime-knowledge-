@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="海事典型事故险情复盘与风险预警知识库">
+  <title>海事典型事故险情复盘与风险预警知识库</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Ccircle cx=%2732%27 cy=%2732%27 r=%2727%27 fill=%27none%27 stroke=%272E86AB%27 stroke-width=%273%27/%3E%3Cpath d=%27M32 8v34M20 20h24M24 42h16M27 49h10%27 fill=%27none%27 stroke=%27D4A853%27 stroke-width=%273%27/%3E%3Cpath d=%27m20 20 12 16 12-16%27 fill=%27none%27 stroke=%27D4A853%27 stroke-width=%273%27/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js" defer></script>
+  <style>
+    /* ===== DESIGN TOKENS ===== */
+    :root {
+      --bg-primary: #F8FBFF;
+      --bg-secondary: #EAF4FB;
+      --bg-card: rgba(255, 255, 255, 0.85);
+      --bg-card-border: rgba(46, 134, 171, 0.2);
+      --color-primary: #2E86AB;
+      --color-primary-light: #5CB8E8;
+      --color-secondary: #3CB371;
+      --color-accent: #FF8C69;
+      --color-danger: #E76F51;
+      --color-warning: #E9C46A;
+      --color-success: #3CB371;
+      --color-white: #FFFFFF;
+      --color-warning-text: #B8860B;
+      --text-primary: #1A3A4A;
+      --text-secondary: #5A7A8A;
+      --text-muted: #8AA0B8;
+      --glow-primary: rgba(46, 134, 171, 0.15);
+      --glow-gold: rgba(255, 200, 100, 0.2);
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-xl: 24px;
+      --shadow-card: 0 4px 20px rgba(46, 134, 171, 0.08);
+      --shadow-hover: 0 8px 30px rgba(46, 134, 171, 0.18);
+      --shadow-nav: 0 4px 18px rgba(26, 58, 74, 0.08);
+      --transition-fast: 0.2s ease;
+      --transition-normal: 0.3s ease;
+      --transition-slow: 0.5s ease;
+      --font-title: 'Cinzel', 'Noto Serif SC', serif;
+      --font-serif: 'Noto Serif SC', serif;
+      --font-sans: 'Noto Sans SC', sans-serif;
+      --font-mono: 'Courier New', monospace;
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+      --space-8: 32px;
+      --space-10: 40px;
+      --z-bg: 0;
+      --z-content: 10;
+      --z-nav: 100;
+      --z-modal: 200;
+      --z-toast: 300;
+    }
+    body.night-mode {
+      --bg-primary: #0A1628;
+      --bg-secondary: #1A2A4A;
+      --bg-card: rgba(20, 40, 70, 0.85);
+      --bg-card-border: rgba(100, 180, 255, 0.3);
+      --text-primary: #E0E8F0;
+      --text-secondary: #8AA0B8;
+      --glow-primary: rgba(92, 184, 232, 0.3);
+    }
+
+    /* ===== GLOBAL RESET ===== */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { min-height: 100vh; overflow-x: hidden; color: var(--text-primary); font-family: var(--font-sans); background: linear-gradient(135deg, var(--bg-primary), var(--bg-secondary)); transition: background var(--transition-slow), color var(--transition-slow); }
+    a { color: var(--color-primary); text-decoration: none; }
+    img { max-width: 100%; display: block; }
+    button, input { font: inherit; }
+    button { color: inherit; }
+    :focus-visible { outline: 3px solid var(--color-primary-light); outline-offset: 3px; }
+
+    /* ===== SHARED COMPONENTS ===== */
+    .glass-card { background: var(--bg-card); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid var(--bg-card-border); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); transition: transform var(--transition-normal), box-shadow var(--transition-normal), border-color var(--transition-normal); }
+    .glass-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-hover); border-color: var(--color-primary); }
+    @media (hover: none) { .glass-card:hover { transform: none; box-shadow: var(--shadow-card); } }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; padding: 10px 20px; border: 1px solid transparent; border-radius: var(--radius-md); font-family: var(--font-sans); font-size: 14px; font-weight: 500; cursor: pointer; transition: all var(--transition-normal); }
+    .btn-primary { color: var(--color-white); background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light)); }
+    .btn-primary:hover { box-shadow: 0 4px 15px var(--glow-primary); transform: translateY(-1px); }
+    .btn-ghost { color: var(--text-primary); background: transparent; border-color: var(--bg-card-border); }
+    .btn-ghost:hover { color: var(--color-primary); border-color: var(--color-primary); }
+    .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 500; }
+    .badge-danger { color: var(--color-danger); background: rgba(231, 111, 81, 0.15); }
+    .badge-warning { color: var(--color-warning-text); background: rgba(233, 196, 106, 0.2); }
+    .badge-success { color: var(--color-success); background: rgba(60, 179, 113, 0.15); }
+    .badge-info { color: var(--color-primary); background: var(--glow-primary); }
+    .tag { display: inline-block; padding: 2px 8px; margin: 2px; color: var(--color-primary); background: var(--glow-primary); border-radius: var(--radius-sm); font-size: 12px; }
+    .section-title { display: flex; align-items: center; gap: 10px; margin-bottom: var(--space-5); color: var(--text-primary); font-family: var(--font-serif); font-size: clamp(20px, 3vw, 28px); font-weight: 700; }
+    .section-title::before { content: ''; width: 4px; height: 24px; background: linear-gradient(to bottom, var(--color-primary), var(--color-primary-light)); border-radius: 2px; }
+    .container { max-width: 1280px; margin: 0 auto; padding: 0 var(--space-6); }
+    .toast { position: fixed; top: 80px; left: 50%; z-index: var(--z-toast); max-width: 90vw; padding: 14px 24px; color: var(--text-primary); text-align: center; pointer-events: none; opacity: 0; background: var(--bg-card); border: 1px solid var(--color-primary); border-radius: var(--radius-md); box-shadow: var(--shadow-hover); backdrop-filter: blur(10px); transform: translateX(-50%) translateY(-20px); transition: all var(--transition-normal); }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .skeleton { background: linear-gradient(90deg, var(--bg-card) 25%, var(--glow-primary) 50%, var(--bg-card) 75%); background-size: 200% 100%; border-radius: var(--radius-md); animation: shimmer 1.5s infinite; }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+    .wave-divider { width: 100%; height: 40px; margin: var(--space-5) 0; opacity: 0.3; }
+    mark { padding: 0 2px; color: var(--color-primary); background: #E0F0F8; border-radius: 2px; }
+
+    /* ===== SCROLLBAR ===== */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: var(--bg-secondary); }
+    ::-webkit-scrollbar-thumb { background: linear-gradient(to bottom, var(--color-primary), var(--color-primary-light)); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--color-primary); }
+
+    /* ===== NAVIGATION ===== */
+    #navbar { position: fixed; top: 0; left: 0; z-index: var(--z-nav); width: 100%; border-bottom: 1px solid transparent; transition: background var(--transition-normal), box-shadow var(--transition-normal), border-color var(--transition-normal); }
+    #navbar.scrolled { background: var(--bg-card); border-bottom-color: var(--bg-card-border); box-shadow: var(--shadow-nav); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+    .nav-inner { display: flex; align-items: center; gap: var(--space-5); min-height: 70px; }
+    .brand { display: inline-flex; align-items: center; flex-shrink: 0; gap: var(--space-3); color: var(--text-primary); }
+    .brand-copy { display: flex; flex-direction: column; line-height: 1.15; }
+    .brand-title { font-family: var(--font-serif); font-size: 17px; font-weight: 700; }
+    .brand-subtitle { margin-top: 3px; color: var(--text-muted); font-family: var(--font-title); font-size: 9px; letter-spacing: 1.3px; }
+    .compass-icon { width: 38px; height: 38px; color: var(--color-primary); animation: rotate 10s linear infinite; }
+    .compass-icon:hover { animation-duration: 3s; }
+    @keyframes rotate { to { transform: rotate(360deg); } }
+    .main-nav { display: flex; align-items: center; justify-content: center; flex: 1; gap: var(--space-2); }
+    .nav-link, .mobile-nav-link { position: relative; color: var(--text-secondary); transition: color var(--transition-fast); }
+    .nav-link { padding: 25px 12px 22px; font-size: 14px; }
+    .nav-link::after { position: absolute; right: 12px; bottom: 14px; left: 12px; height: 2px; content: ''; background: var(--color-primary); border-radius: 2px; transform: scaleX(0); transition: transform var(--transition-normal); }
+    .nav-link:hover, .nav-link.active { color: var(--color-primary); }
+    .nav-link.active::after { transform: scaleX(1); }
+    .nav-tools { display: flex; align-items: center; gap: var(--space-3); }
+    #themeToggle { width: 44px; padding: 8px; font-size: 17px; }
+    .theme-icon { display: inline-flex; width: 18px; height: 18px; }
+    .theme-icon svg, .hamburger-icon svg { width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.8; }
+    .nav-search { width: 180px; min-height: 40px; padding: 8px 12px; color: var(--text-primary); background: var(--bg-card); border: 1px solid var(--bg-card-border); border-radius: var(--radius-md); outline: none; transition: width var(--transition-normal), border-color var(--transition-normal), box-shadow var(--transition-normal); }
+    .nav-search::placeholder { color: var(--text-muted); }
+    .nav-search:focus { width: 220px; border-color: var(--color-primary); box-shadow: 0 0 0 3px var(--glow-primary); }
+    #hamburger { display: none; width: 44px; padding: 9px; }
+    .hamburger-icon { display: inline-flex; width: 22px; height: 22px; }
+    #mobileMenu { display: none; }
+
+    /* ===== MAIN VIEWS ===== */
+    #app { position: relative; z-index: var(--z-content); min-height: 100vh; padding-top: 100px; padding-bottom: 60px; }
+    .view { display: none; animation: fadeInUp 0.3s ease; }
+    .view.active { display: block; }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .view-placeholder { min-height: 240px; padding: var(--space-8); }
+    .view-placeholder p { color: var(--text-secondary); }
+    .error-view { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-5); }
+    #bg-effects { position: fixed; top: 0; left: 0; z-index: var(--z-bg); width: 100%; height: 100%; pointer-events: none; }
+
+    /* ===== FOOTER ===== */
+    footer { position: relative; z-index: var(--z-content); padding: 30px 0; color: var(--text-secondary); text-align: center; background: var(--bg-card); border-top: 1px solid var(--bg-card-border); }
+    .footer-hint { margin-top: var(--space-2); color: var(--text-muted); font-size: 12px; }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 1023px) {
+      .nav-inner { gap: var(--space-3); }
+      .nav-link { padding-right: 8px; padding-left: 8px; }
+      .nav-link::after { right: 8px; left: 8px; }
+      .nav-search { width: 150px; }
+      .nav-search:focus { width: 180px; }
+    }
+    @media (max-width: 767px) {
+      .container { padding-right: var(--space-4); padding-left: var(--space-4); }
+      .nav-inner { min-height: 64px; }
+      .brand-title { font-size: 15px; }
+      .brand-subtitle { display: none; }
+      .compass-icon { width: 34px; height: 34px; }
+      .main-nav, .nav-search { display: none; }
+      .nav-tools { margin-left: auto; }
+      #hamburger { display: inline-flex; }
+      #mobileMenu { position: fixed; inset: 0; z-index: var(--z-modal); display: flex; align-items: center; justify-content: center; background: var(--bg-card); backdrop-filter: blur(20px); opacity: 0; pointer-events: none; transform: translateX(100%); transition: opacity var(--transition-normal), transform var(--transition-normal); }
+      #mobileMenu.open { opacity: 1; pointer-events: auto; transform: translateX(0); }
+      .mobile-nav-list { display: flex; flex-direction: column; align-items: center; gap: var(--space-6); list-style: none; }
+      .mobile-nav-link { color: var(--text-primary); font-family: var(--font-serif); font-size: 20px; }
+      .mobile-nav-link.active { color: var(--color-primary); }
+      #app { padding-top: 88px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+      html { scroll-behavior: auto; }
+    }
+  
+    /* ===== FANTASY SEA BACKDROP ===== */
+    #readingProgress { position: fixed; top: 0; left: 0; z-index: calc(var(--z-toast) + 1); width: 0; height: 3px; background: linear-gradient(90deg, var(--color-primary), var(--color-warning), var(--color-primary-light)); box-shadow: 0 0 10px var(--glow-gold); transition: width .12s linear; }
+    #bg-effects { overflow: hidden; background: radial-gradient(circle at 15% 15%, rgba(255,255,255,.7), transparent 30%), radial-gradient(circle at 80% 70%, var(--glow-primary), transparent 34%); }
+    .cloud { position: absolute; width: 240px; height: 76px; border-radius: 50%; background: rgba(255,255,255,.24); filter: blur(10px); animation: cloudDrift 34s linear infinite; }
+    .cloud::before, .cloud::after { position: absolute; content: ''; border-radius: 50%; background: inherit; }
+    .cloud::before { width: 130px; height: 100px; top: -35px; left: 35px; }
+    .cloud::after { width: 150px; height: 110px; top: -45px; right: 22px; }
+    .cloud-1 { top: 18%; left: -18%; }
+    .cloud-2 { top: 48%; left: -28%; animation-delay: -12s; animation-duration: 48s; opacity: .55; }
+    .cloud-3 { top: 72%; left: -10%; animation-delay: -24s; animation-duration: 42s; opacity: .35; }
+    @keyframes cloudDrift { to { transform: translateX(145vw); } }
+    .wave-layer { position: absolute; right: -5%; bottom: -4px; left: -5%; height: 110px; opacity: .13; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='900' height='100' viewBox='0 0 900 100'%3E%3Cpath d='M0 55c80-45 160 45 240 0s160-45 240 0 160 45 240 0 160-45 240 0v50H0z' fill='%232e86ab'/%3E%3C/svg%3E") repeat-x bottom/900px 100px; animation: waveMove 18s linear infinite; }
+    .wave-layer.wave-2 { bottom: 14px; opacity: .08; animation-duration: 25s; animation-direction: reverse; }
+    @keyframes waveMove { to { background-position-x: 900px; } }
+    .magic-circle { position: absolute; right: 12%; bottom: -28%; width: 430px; height: 430px; border: 1px solid var(--glow-primary); border-radius: 50%; opacity: .16; animation: magicSpin 20s linear infinite; }
+    .magic-circle::before, .magic-circle::after { position: absolute; inset: 12%; content: ''; border: 1px dashed var(--glow-gold); border-radius: 50%; }
+    .magic-circle::after { inset: 28%; border-style: solid; transform: rotate(45deg); }
+    @keyframes magicSpin { to { transform: rotate(360deg); } }
+    .bubble, .particle { position: absolute; pointer-events: auto; border-radius: 50%; }
+    .bubble { width: 10px; height: 10px; border: 1px solid rgba(92,184,232,.35); background: rgba(255,255,255,.18); animation: bubbleRise 10s linear forwards; cursor: pointer; }
+    @keyframes bubbleRise { from { opacity: 0; transform: translateY(40px) scale(.6); } 10% { opacity: .7; } to { opacity: 0; transform: translateY(-110vh) scale(1.2); } }
+    .particle { width: 3px; height: 3px; background: var(--color-warning); box-shadow: 0 0 9px var(--color-warning); opacity: .36; animation: particleFloat 12s ease-in-out infinite; }
+    @keyframes particleFloat { 50% { transform: translate(18px,-35px) scale(1.4); opacity: .75; } }
+    .loading-overlay { position: fixed; inset: 0; z-index: calc(var(--z-modal) + 5); display: grid; place-items: center; background: linear-gradient(135deg, var(--bg-primary), var(--bg-secondary)); opacity: 1; transition: opacity .7s ease, visibility .7s ease; }
+    .loading-overlay.done { visibility: hidden; opacity: 0; pointer-events: none; }
+    .loading-sigil { display: grid; place-items: center; width: 100px; height: 100px; color: var(--color-warning); border: 1px solid var(--color-warning); border-radius: 50%; box-shadow: 0 0 28px var(--glow-gold); animation: sigilPulse 1.8s ease-in-out infinite; }
+    .loading-sigil svg { width: 55px; height: 55px; fill: none; stroke: currentColor; stroke-width: 1.3; }
+    @keyframes sigilPulse { 50% { transform: scale(1.12) rotate(180deg); box-shadow: 0 0 60px var(--glow-gold); } }
+
+    /* ===== SPRITE GUARDIANS ===== */
+    #spriteLayer { position: fixed; inset: 0; z-index: calc(var(--z-nav) - 1); pointer-events: none; }
+    .sprite { position: absolute; display: grid; place-items: center; width: 106px; height: 106px; padding: 0; color: var(--sprite-color, var(--color-primary)); background: transparent; border: 0; cursor: pointer; pointer-events: auto; opacity: .82; transition: transform var(--transition-normal), opacity var(--transition-normal), filter var(--transition-normal); animation: spriteBreathe var(--sprite-speed, 2.5s) ease-in-out infinite; }
+    .sprite:hover, .sprite:focus-visible { z-index: 2; opacity: 1; filter: drop-shadow(0 0 12px var(--sprite-color)); transform: translate(12px, 0) scale(1.08); }
+    .sprite-body { position: relative; display: grid; place-items: center; width: 54px; height: 64px; color: var(--sprite-color); background: color-mix(in srgb, var(--sprite-color) 16%, var(--bg-card)); border: 1px solid color-mix(in srgb, var(--sprite-color) 60%, transparent); border-radius: 50% 50% 44% 44%; box-shadow: 0 0 18px color-mix(in srgb, var(--sprite-color) 30%, transparent); }
+    .sprite-body::after { position: absolute; top: 10px; width: 23px; height: 23px; content: ''; background: var(--bg-card); border: 1px solid currentColor; border-radius: 50%; }
+    .sprite-wing { position: absolute; width: 32px; height: 43px; background: color-mix(in srgb, var(--sprite-color) 28%, transparent); border: 1px solid color-mix(in srgb, var(--sprite-color) 70%, transparent); border-radius: 70% 20% 70% 20%; opacity: .72; animation: wingBeat 1.2s ease-in-out infinite alternate; }
+    .sprite-wing.left { left: 1px; transform: rotate(26deg); transform-origin: right bottom; }
+    .sprite-wing.right { right: 1px; transform: scaleX(-1) rotate(26deg); transform-origin: right bottom; }
+    .sprite-glyph { position: relative; z-index: 1; margin-top: 24px; font-family: var(--font-title); font-size: 19px; text-shadow: 0 0 8px currentColor; }
+    .sprite-caption { position: absolute; top: 88px; width: 150px; color: var(--text-secondary); font-family: var(--font-serif); font-size: 11px; text-align: center; opacity: 0; transition: opacity var(--transition-fast); }
+    .sprite:hover .sprite-caption, .sprite:focus-visible .sprite-caption { opacity: 1; }
+    .sprite.fly { animation: spriteFly .8s ease-in forwards; }
+    @keyframes wingBeat { to { transform: rotate(9deg) scaleY(.84); opacity: .95; } }
+    @keyframes spriteBreathe { 50% { transform: translateY(-6px); } }
+    @keyframes spriteFly { 50% { transform: translate(0,-45px) scale(1.3) rotate(8deg); } to { transform: translate(var(--fly-x), var(--fly-y)) scale(.2) rotate(35deg); opacity: 0; } }
+    .sprite-star { top: 74px; left: -35px; --sprite-color: var(--color-primary); --fly-x: 40vw; --fly-y: 22vh; }
+    .sprite-ink { top: 58px; right: -37px; --sprite-color: var(--color-warning); --sprite-speed: 1.2s; --fly-x: -40vw; --fly-y: 24vh; }
+    .sprite-mist { top: 43%; right: -38px; --sprite-color: var(--color-accent); --sprite-speed: 4s; --fly-x: -38vw; --fly-y: 0; }
+    .sprite-balance { bottom: -28px; left: -32px; --sprite-color: var(--color-primary); --sprite-speed: 4s; --fly-x: 38vw; --fly-y: -28vh; }
+    .sprite-learn { right: -34px; bottom: 124px; --sprite-color: var(--color-secondary); --fly-x: -38vw; --fly-y: -22vh; }
+    .sprite-shield { right: -34px; bottom: -28px; --sprite-color: var(--color-danger); --sprite-speed: 4s; --fly-x: -38vw; --fly-y: -34vh; }
+    .sprite-stats { bottom: 18px; left: 39%; width: 72px; height: 72px; --sprite-color: var(--color-accent); --sprite-speed: 1.2s; --fly-x: 2vw; --fly-y: -30vh; transform: scale(.72); }
+    .sprite-ai { right: 39%; bottom: 18px; width: 72px; height: 72px; --sprite-color: #9B59B6; --sprite-speed: 1.2s; --fly-x: -2vw; --fly-y: -30vh; transform: scale(.72); }
+    .sprite-stats .sprite-caption, .sprite-ai .sprite-caption { top: 64px; }
+    .sprite-stats:hover, .sprite-stats:focus-visible, .sprite-ai:hover, .sprite-ai:focus-visible { transform: scale(.82) translateY(-5px); }
+
+    /* ===== USER SYSTEM ===== */
+    .user-tools { position: relative; display: flex; align-items: center; gap: var(--space-2); }
+    #userToggle { display: inline-flex; align-items: center; gap: 7px; min-height: 42px; padding: 4px 9px 4px 5px; color: var(--text-primary); background: transparent; border: 1px solid transparent; border-radius: 22px; cursor: pointer; transition: all var(--transition-normal); }
+    #userToggle:hover { background: var(--glow-primary); border-color: var(--bg-card-border); }
+    .avatar-orb { position: relative; display: grid; place-items: center; width: 32px; height: 32px; color: var(--color-warning); font-family: var(--font-serif); font-size: 15px; background: radial-gradient(circle at 35% 30%, #fff, var(--color-primary-light) 20%, var(--color-primary) 58%, #174b66); border-radius: 50%; box-shadow: 0 0 12px var(--glow-primary); }
+    .avatar-orb::after { position: absolute; inset: -4px; content: ''; border: 1px solid var(--color-warning); border-radius: 50%; opacity: .6; animation: orbSpin 8s linear infinite; }
+    @keyframes orbSpin { to { transform: rotate(360deg); } }
+    .username-short { max-width: 74px; overflow: hidden; font-family: var(--font-serif); font-size: 13px; text-overflow: ellipsis; white-space: nowrap; }
+    .user-panel { position: absolute; top: calc(100% + 13px); right: 0; z-index: var(--z-modal); width: min(390px, calc(100vw - 24px)); max-height: calc(100vh - 90px); overflow: auto; padding: var(--space-5); color: var(--text-primary); background: var(--bg-card); border: 1px solid var(--bg-card-border); border-radius: var(--radius-lg); box-shadow: var(--shadow-hover); backdrop-filter: blur(18px); transform: translateY(-10px) scale(.97); transform-origin: top right; opacity: 0; pointer-events: none; transition: opacity var(--transition-normal), transform var(--transition-normal); }
+    .user-panel.open { opacity: 1; pointer-events: auto; transform: translateY(0) scale(1); }
+    .user-panel h3 { margin-bottom: var(--space-3); font-family: var(--font-serif); }
+    .profile-head { display: flex; align-items: center; gap: var(--space-3); padding-bottom: var(--space-4); border-bottom: 1px solid var(--bg-card-border); }
+    .profile-avatar { flex: 0 0 auto; width: 60px; height: 60px; font-size: 24px; }
+    .profile-fields { display: grid; gap: var(--space-2); margin-top: var(--space-4); }
+    .profile-fields label, .ai-form label { display: grid; gap: 5px; color: var(--text-secondary); font-size: 12px; }
+    .profile-fields input, .profile-fields select, .ai-form input, .ai-form textarea, .ai-form select, .chat-input { width: 100%; min-height: 40px; padding: 8px 10px; color: var(--text-primary); background: var(--bg-primary); border: 1px solid var(--bg-card-border); border-radius: var(--radius-sm); outline: none; }
+    .profile-fields input:focus, .profile-fields select:focus, .ai-form input:focus, .ai-form textarea:focus, .ai-form select:focus, .chat-input:focus { border-color: var(--color-primary); box-shadow: 0 0 0 3px var(--glow-primary); }
+    .panel-section { margin-top: var(--space-5); padding-top: var(--space-4); border-top: 1px solid var(--bg-card-border); }
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-2); }
+    .mini-stat { padding: 9px 5px; text-align: center; background: var(--glow-primary); border-radius: var(--radius-sm); }
+    .mini-stat strong { display: block; color: var(--color-primary); font-family: var(--font-title); font-size: 18px; }
+    .mini-stat span { color: var(--text-muted); font-size: 10px; }
+    .achievement-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-2); }
+    .achievement { display: grid; place-items: center; min-height: 65px; color: var(--color-warning); text-align: center; background: var(--glow-gold); border: 1px solid var(--color-warning); border-radius: 50%; font-size: 10px; transition: transform var(--transition-fast), filter var(--transition-fast); }
+    .achievement.locked { color: var(--text-muted); background: transparent; border-color: var(--bg-card-border); filter: grayscale(1); opacity: .55; }
+    .achievement:hover { transform: scale(1.06); }
+    .setting-row { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); padding: 7px 0; color: var(--text-secondary); font-size: 13px; }
+    .setting-row button, .preset-avatar { padding: 6px 9px; color: var(--text-primary); background: transparent; border: 1px solid var(--bg-card-border); border-radius: var(--radius-sm); cursor: pointer; }
+    .setting-row button:hover, .preset-avatar:hover { color: var(--color-primary); border-color: var(--color-primary); }
+    .preset-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+    .preset-avatar { width: 30px; height: 30px; padding: 0; border-radius: 50%; }
+    .panel-actions { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-4); }
+    .panel-actions .btn { min-height: 36px; padding: 7px 11px; font-size: 12px; }
+
+    /* ===== DASHBOARD / DATA VIEWS ===== */
+    .hero { display: grid; grid-template-columns: 1.4fr .8fr; align-items: center; gap: var(--space-6); min-height: 260px; padding: clamp(24px, 5vw, 60px); margin-bottom: var(--space-6); overflow: hidden; background: linear-gradient(120deg, var(--bg-card), rgba(92,184,232,.15)); }
+    .hero-kicker { color: var(--color-primary); font-family: var(--font-title); font-size: 13px; letter-spacing: 3px; }
+    .hero h1 { margin: 10px 0; color: var(--text-primary); font-family: var(--font-serif); font-size: clamp(30px, 5vw, 54px); line-height: 1.18; }
+    .hero h1 span { display: block; color: var(--color-primary); font-family: var(--font-title); font-size: .46em; letter-spacing: 4px; }
+    .hero p { max-width: 630px; color: var(--text-secondary); line-height: 1.8; }
+    .hero-quote { padding: var(--space-5); color: var(--text-secondary); border-left: 2px solid var(--color-warning); font-family: var(--font-serif); line-height: 1.8; }
+    .hero-quote time { display: block; margin-bottom: var(--space-3); color: var(--color-primary); font-family: var(--font-title); font-size: 13px; }
+    .metrics-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: var(--space-3); margin-bottom: var(--space-6); }
+    .metric-card { position: relative; min-height: 126px; padding: var(--space-4); overflow: hidden; }
+    .metric-card::before { position: absolute; top: -24px; right: -24px; width: 90px; height: 90px; content: ''; border: 1px solid var(--glow-gold); border-radius: 50%; }
+    .metric-card small { color: var(--text-muted); font-size: 12px; }
+    .metric-card strong { display: block; margin: 12px 0 4px; color: var(--color-primary); font-family: var(--font-title); font-size: 28px; text-shadow: 0 0 10px var(--glow-primary); }
+    .metric-icon { color: var(--color-warning); font-size: 18px; }
+    .section-head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); margin-bottom: var(--space-4); }
+    .section-head .section-title { margin-bottom: 0; }
+    .dashboard-grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: var(--space-5); margin-bottom: var(--space-6); }
+    .chart-card { min-height: 310px; padding: var(--space-4); }
+    .chart { width: 100%; height: 250px; }
+    .quick-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-3); }
+    .quick-entry { display: grid; place-items: center; min-height: 92px; color: var(--text-secondary); text-align: center; cursor: pointer; }
+    .quick-entry strong { display: block; margin-top: 5px; color: var(--text-primary); font-family: var(--font-serif); font-size: 13px; }
+    .quick-entry span { display: grid; place-items: center; width: 38px; height: 38px; color: var(--color-primary); background: var(--glow-primary); border: 1px solid var(--bg-card-border); border-radius: 50%; font-size: 19px; transition: transform var(--transition-normal), box-shadow var(--transition-normal); }
+    .quick-entry:hover span { transform: scale(1.15); box-shadow: 0 0 18px var(--glow-primary); }
+    .latest-list, .risk-list { display: grid; gap: var(--space-3); }
+    .latest-card, .risk-card { position: relative; display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); padding: var(--space-4); cursor: pointer; }
+    .latest-card::before { position: absolute; top: 0; bottom: 0; left: 0; width: 4px; content: ''; background: var(--color-danger); border-radius: 4px 0 0 4px; }
+    .latest-card h3, .risk-card h3 { margin-bottom: 5px; font-family: var(--font-serif); font-size: 15px; }
+    .latest-card p, .risk-card p { color: var(--text-secondary); font-size: 12px; }
+    .risk-level-high { color: var(--color-danger); }
+    .risk-level-medium { color: var(--color-accent); }
+    .risk-level-low { color: var(--color-secondary); }
+    .insight { padding: var(--space-5); border-left: 3px solid var(--color-warning); }
+    .insight strong { color: var(--color-warning); }
+    .toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); padding: var(--space-4); margin-bottom: var(--space-5); }
+    .toolbar input, .toolbar select { min-height: 40px; padding: 8px 10px; color: var(--text-primary); background: var(--bg-primary); border: 1px solid var(--bg-card-border); border-radius: var(--radius-sm); }
+    .filter-chip { padding: 7px 11px; color: var(--text-secondary); background: transparent; border: 1px solid var(--bg-card-border); border-radius: 20px; cursor: pointer; }
+    .filter-chip.active, .filter-chip:hover { color: var(--color-primary); border-color: var(--color-primary); background: var(--glow-primary); }
+    .case-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-4); }
+    .case-card { position: relative; display: flex; flex-direction: column; min-height: 240px; padding: var(--space-5); cursor: pointer; }
+    .case-card .case-top { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); margin-bottom: var(--space-3); }
+    .case-card h3 { margin-bottom: 9px; font-family: var(--font-serif); font-size: 17px; line-height: 1.5; }
+    .case-card p { flex: 1; color: var(--text-secondary); font-size: 13px; line-height: 1.7; }
+    .case-meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: var(--space-3); color: var(--text-muted); font-size: 11px; }
+    .favorite { padding: 4px; color: var(--color-warning); background: transparent; border: 0; cursor: pointer; font-size: 20px; }
+    .list-view .case-grid { display: block; }
+    .list-view .case-card { display: grid; grid-template-columns: 1.1fr 2fr auto; align-items: center; min-height: 0; margin-bottom: var(--space-3); }
+    .empty-state { display: grid; place-items: center; gap: var(--space-3); min-height: 220px; padding: var(--space-8); color: var(--text-muted); text-align: center; }
+    .empty-state svg { width: 90px; height: 70px; color: var(--color-primary); opacity: .55; }
+    .detail-hero { padding: var(--space-6); margin-bottom: var(--space-5); background: linear-gradient(135deg, var(--bg-card), var(--glow-primary)); }
+    .breadcrumbs { margin-bottom: var(--space-3); color: var(--text-muted); font-size: 12px; }
+    .detail-hero h1 { margin-bottom: var(--space-3); font-family: var(--font-serif); font-size: clamp(24px, 4vw, 38px); }
+    .detail-meta { display: flex; flex-wrap: wrap; gap: var(--space-3); color: var(--text-secondary); font-size: 13px; }
+    .detail-actions { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-5); }
+    .detail-layout { display: grid; grid-template-columns: 1fr 250px; gap: var(--space-5); }
+    .detail-content { display: grid; gap: var(--space-5); }
+    .detail-section { padding: var(--space-5); }
+    .detail-section h3 { margin-bottom: var(--space-4); color: var(--color-primary); font-family: var(--font-serif); }
+    .detail-section p, .detail-section li { color: var(--text-secondary); font-size: 14px; line-height: 1.9; }
+    .timeline { position: relative; display: grid; gap: var(--space-3); padding-left: 22px; }
+    .timeline::before { position: absolute; top: 5px; bottom: 5px; left: 5px; width: 2px; content: ''; background: linear-gradient(var(--color-primary), var(--color-warning)); }
+    .timeline-item { position: relative; padding: 10px 12px; background: var(--glow-primary); border-radius: var(--radius-sm); }
+    .timeline-item::before { position: absolute; top: 15px; left: -21px; width: 10px; height: 10px; content: ''; background: var(--color-primary); border: 2px solid var(--bg-primary); border-radius: 50%; box-shadow: 0 0 8px var(--color-primary); }
+    .timeline-item.critical::before { background: var(--color-danger); box-shadow: 0 0 12px var(--color-danger); }
+    .timeline-time { color: var(--color-primary); font-family: var(--font-mono); font-size: 12px; }
+    .cause-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: var(--space-3); }
+    .cause-tab { padding: 7px 11px; color: var(--text-secondary); background: transparent; border: 1px solid var(--bg-card-border); border-radius: 20px; cursor: pointer; }
+    .cause-tab.active { color: var(--color-primary); border-color: var(--color-primary); background: var(--glow-primary); }
+    .cause-list, .numbered-list { display: grid; gap: var(--space-3); padding-left: 20px; }
+    .cause-list li strong { color: var(--text-primary); }
+    .side-rail { display: grid; align-content: start; gap: var(--space-3); }
+    .side-card { padding: var(--space-4); }
+    .side-card h4 { margin-bottom: var(--space-2); color: var(--color-primary); font-family: var(--font-serif); }
+    .side-card p { color: var(--text-secondary); font-size: 13px; line-height: 1.8; }
+    .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .data-table th, .data-table td { padding: 10px; color: var(--text-secondary); text-align: left; border-bottom: 1px solid var(--bg-card-border); }
+    .data-table th { color: var(--text-primary); font-family: var(--font-serif); }
+    .risk-grid, .reg-grid, .lesson-grid, .resource-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-4); }
+    .risk-card-large, .reg-card, .lesson-card, .resource-card { padding: var(--space-5); }
+    .risk-card-large h3, .reg-card h3, .lesson-card h3, .resource-card h3 { margin: 10px 0; font-family: var(--font-serif); font-size: 17px; }
+    .risk-card-large p, .reg-card p, .lesson-card p, .resource-card p { color: var(--text-secondary); font-size: 13px; line-height: 1.8; }
+    .tag-list { display: flex; flex-wrap: wrap; gap: 4px; margin-top: var(--space-3); }
+    .tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: var(--space-4); }
+    .tab { padding: 9px 14px; color: var(--text-secondary); background: transparent; border: 1px solid var(--bg-card-border); border-radius: var(--radius-md); cursor: pointer; }
+    .tab.active { color: var(--color-white); background: var(--color-primary); border-color: var(--color-primary); }
+
+    /* ===== AI LAB ===== */
+    .ai-shell { display: grid; grid-template-columns: 240px 1fr; gap: var(--space-5); }
+    .ai-nav { display: grid; align-content: start; gap: 5px; padding: var(--space-3); }
+    .ai-nav button { padding: 11px; color: var(--text-secondary); text-align: left; background: transparent; border: 0; border-radius: var(--radius-sm); cursor: pointer; }
+    .ai-nav button.active, .ai-nav button:hover { color: var(--color-primary); background: var(--glow-primary); }
+    .ai-main { min-width: 0; }
+    .ai-config-card, .chat-shell, .risk-lab { padding: var(--space-5); }
+    .ai-form { display: grid; gap: var(--space-3); max-width: 680px; }
+    .ai-form textarea { min-height: 110px; resize: vertical; }
+    .ai-note { padding: var(--space-3); color: var(--text-secondary); background: var(--glow-gold); border-left: 3px solid var(--color-warning); font-size: 12px; line-height: 1.7; }
+    .chat-messages { display: grid; gap: var(--space-3); min-height: 260px; max-height: 430px; overflow: auto; padding: var(--space-3); margin-bottom: var(--space-3); background: var(--bg-primary); border-radius: var(--radius-md); }
+    .chat-message { max-width: 82%; padding: 10px 13px; color: var(--text-primary); line-height: 1.7; white-space: pre-wrap; }
+    .chat-message.user { justify-self: end; color: var(--color-white); background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light)); border-radius: 14px 14px 3px 14px; }
+    .chat-message.assistant { justify-self: start; background: var(--bg-card); border-left: 3px solid var(--color-warning); border-radius: 3px 14px 14px 14px; }
+    .chat-composer { display: flex; gap: var(--space-2); }
+    .chat-composer .chat-input { flex: 1; min-height: 46px; }
+    .typing { color: var(--color-primary); font-size: 12px; }
+    .typing::after { content: '···'; display: inline-block; width: 20px; overflow: hidden; vertical-align: bottom; animation: dots 1s steps(4, end) infinite; }
+    @keyframes dots { from { width: 0; } to { width: 20px; } }
+
+    /* ===== PRINT / RESPONSIVE ===== */
+    @media (max-width: 1100px) { .metrics-grid { grid-template-columns: repeat(3, 1fr); } .sprite { transform: scale(.85); } .sprite-stats { left: 34%; } .sprite-ai { right: 34%; } }
+    @media (max-width: 767px) {
+      .hero, .dashboard-grid, .detail-layout, .ai-shell { grid-template-columns: 1fr; }
+      .hero { min-height: 0; padding: var(--space-5); }
+      .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+      .case-grid, .risk-grid, .reg-grid, .lesson-grid, .resource-grid { grid-template-columns: 1fr; }
+      .quick-grid { grid-template-columns: repeat(4, 1fr); }
+      .quick-entry { min-height: 74px; }
+      .quick-entry strong { font-size: 11px; }
+      .detail-layout { display: flex; flex-direction: column; }
+      .side-rail { order: -1; grid-template-columns: repeat(2, 1fr); }
+      .ai-nav { grid-template-columns: repeat(3, 1fr); }
+      .ai-nav button { text-align: center; }
+      .user-panel { position: fixed; top: 72px; right: 12px; }
+      .sprite { position: fixed; top: auto !important; right: auto !important; bottom: 7px !important; left: auto !important; width: 44px; height: 44px; transform: scale(.58) !important; }
+      .sprite-caption { display: none; }
+      .sprite-body { width: 48px; height: 54px; }
+      .sprite-star { left: 4px !important; } .sprite-ink { left: calc(14.28% + 4px) !important; } .sprite-mist { left: calc(28.56% + 4px) !important; } .sprite-balance { left: calc(42.84% + 4px) !important; } .sprite-learn { left: calc(57.12% + 4px) !important; } .sprite-shield { left: calc(71.4% + 4px) !important; } .sprite-stats { left: calc(85.68% - 4px) !important; } .sprite-ai { display: none; }
+      #spriteLayer { top: auto; bottom: 0; height: 58px; background: var(--bg-card); border-top: 1px solid var(--bg-card-border); backdrop-filter: blur(12px); pointer-events: auto; }
+      #app { padding-bottom: 90px; }
+      .list-view .case-card { display: flex; }
+      .side-rail { grid-template-columns: 1fr 1fr; }
+      .toolbar input, .toolbar select, .user-panel input, .user-panel select, .ai-form input, .ai-form textarea, .ai-form select, .chat-input { min-width: 45%; font-size: 16px; }
+    }
+    @media print {
+      #navbar, #spriteLayer, #bg-effects, #readingProgress, .loading-overlay, footer, .detail-actions, .user-panel, .toast { display: none !important; }
+      body { color: #000; background: #fff; }
+      #app { padding: 0; }
+      .view { display: none !important; }
+      #view-case-detail { display: block !important; }
+      .glass-card, .detail-section { box-shadow: none; border: 1px solid #aaa; break-inside: avoid; }
+    }
+
+  </style>
+</head>
+<body>
+  <div id="readingProgress" aria-hidden="true"></div>
+  <div id="bg-effects" aria-hidden="true">
+    <div class="cloud cloud-1"></div><div class="cloud cloud-2"></div><div class="cloud cloud-3"></div>
+    <div class="wave-layer wave-1"></div><div class="wave-layer wave-2"></div><div class="magic-circle"></div>
+    <div id="bubbleField"></div><div id="particleField"></div>
+  </div>
+  <div id="loadingOverlay" class="loading-overlay" aria-label="正在进入海事知识库"><div class="loading-sigil"><svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="18"/><path d="M24 6v29M14 16h20M18 35h12M20 39h8"/><path d="m14 16 10 12 10-12"/></svg></div></div>
+
+  <!-- ===== 精灵系统 ===== -->
+  <div id="spriteLayer" aria-label="精灵快捷入口">
+    <button class="sprite sprite-star" data-route="home" aria-label="星罗，打开首页驾驶舱"><span class="sprite-wing left"></span><span class="sprite-wing right"></span><span class="sprite-body"><span class="sprite-glyph">✦</span></span><span class="sprite-caption">星海无垠，罗盘为引</span></button>
+    <button class="sprite sprite-ink" data-route="cases" aria-label="墨言，打开事故案例库"><span class="sprite-wing left"></span><span class="sprite-wing right"></span><span class="sprite-body"><span class="sprite-glyph">✎</span></span><span class="sprite-caption">每一起事故，都是血写的典籍</span></button>
+    <button class="sprite sprite-mist" data-route="risk" aria-label="雾璃，打开风险预警中心"><span class="sprite-wing left"></span><span class="sprite-wing right"></span><span class="sprite-body"><span class="sprite-glyph">◈</span></span><span class="sprite-caption">风起于青萍之末</span></button>
+    <button class="sprite sprite-balance" data-route="regs" aria-label="衡真，打开法规标准库"><span class="sprite-wing left"></span><span class="sprite-wing right"></span><span class="sprite-body"><span class="sprite-glyph">⚖</span></span><span class="sprite-caption">规则是海的秩序</span></button>
+    <button class="sprite sprite-learn" data-route="learning" aria-label="知鸢，打开知识学习中心"><span class="sprite-wing left"></span><span class="sprite-wing right"></span><span class="sprite-body"><span class="sprite-glyph">◉</span></span><span class="sprite-caption">知者不惑</span></button>
+    <button class="sprite sprite-shield" data-route="emergency" aria-label="镇澜，打开应急资源"><span class="sprite-wing left"></span><span class="sprite-wing right"></span><span class="sprite-body"><span class="sprite-glyph">⬟</span></span><span class="sprite-caption">风浪再大，有我守着</span></button>
+    <button class="sprite sprite-stats" data-route="stats" aria-label="数玑，打开统计分析中心"><span class="sprite-wing left"></span><span class="sprite-wing right"></span><span class="sprite-body"><span class="sprite-glyph">∑</span></span><span class="sprite-caption">数字会说话</span></button>
+    <button class="sprite sprite-ai" data-route="ai" aria-label="玄机，打开 AI 智库"><span class="sprite-wing left"></span><span class="sprite-wing right"></span><span class="sprite-body"><span class="sprite-glyph">✧</span></span><span class="sprite-caption">让我为你推演因果</span></button>
+  </div>
+
+  <!-- ===== 导航栏 ===== -->
+  <header id="navbar">
+    <div class="container nav-inner">
+      <a class="brand" href="#/home" aria-label="返回首页"><svg class="compass-icon" viewBox="0 0 48 48" role="img" aria-label="罗盘"><circle cx="24" cy="24" r="19" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="24" cy="24" r="14" fill="none" stroke="currentColor" stroke-width="1" opacity=".55"/><path d="M24 8v5M24 35v5M8 24h5M35 24h5" stroke="currentColor" stroke-width="1.5"/><path d="m27.6 20.4-2.2 7.2-7.2 2.2 2.2-7.2 7.2-2.2Z" fill="var(--color-accent)" stroke="currentColor" stroke-width="1.5"/><circle cx="24" cy="24" r="2" fill="currentColor"/></svg><span class="brand-copy"><span class="brand-title">海事知识库</span><span class="brand-subtitle">MARITIME KNOWLEDGE</span></span></a>
+      <nav class="main-nav" aria-label="主导航"><a class="nav-link" data-route="home" href="#/home">首页</a><a class="nav-link" data-route="cases" href="#/cases">案例库</a><a class="nav-link" data-route="risk" href="#/risk">风险预警</a><a class="nav-link" data-route="regs" href="#/regs">法规库</a><a class="nav-link" data-route="about" href="#/about">关于</a></nav>
+      <div class="nav-tools"><button id="themeToggle" class="btn btn-ghost" type="button" aria-label="切换夜间模式" aria-pressed="false"><span class="theme-icon" aria-hidden="true"></span></button><input type="search" id="navSearch" class="nav-search" placeholder="搜索案例..." aria-label="搜索案例"><div class="user-tools"><button id="userToggle" type="button" aria-label="打开用户面板" aria-expanded="false"><span class="avatar-orb" id="navAvatar">航</span><span class="username-short" id="navUsername">航海者</span><span aria-hidden="true">⌄</span></button><div id="userPanel" class="user-panel" aria-hidden="true"></div></div><button id="hamburger" class="btn btn-ghost" type="button" aria-label="菜单" aria-expanded="false" aria-controls="mobileMenu"><span class="hamburger-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg></span></button></div>
+    </div>
+    <div id="mobileMenu" aria-hidden="true"><nav aria-label="移动端主导航"><ul class="mobile-nav-list"><li><a class="mobile-nav-link" data-route="home" href="#/home">首页</a></li><li><a class="mobile-nav-link" data-route="cases" href="#/cases">案例库</a></li><li><a class="mobile-nav-link" data-route="risk" href="#/risk">风险预警</a></li><li><a class="mobile-nav-link" data-route="regs" href="#/regs">法规库</a></li><li><a class="mobile-nav-link" data-route="about" href="#/about">关于</a></li><li><a class="mobile-nav-link" data-route="ai" href="#/ai">AI智库</a></li></ul></nav></div>
+  </header>
+
+  <!-- ===== 用户系统 ===== -->
+  <input id="avatarUpload" type="file" accept="image/*" hidden>
+
+  <!-- ===== 主内容区 ===== -->
+  <main id="app" class="container">
+    <!-- ===== 视图：首页驾驶舱 ===== -->
+    <section class="view" id="view-home" aria-labelledby="title-home"><div id="homeContent"></div></section>
+    <!-- ===== 视图：事故案例库 ===== -->
+    <section class="view" id="view-cases" aria-labelledby="title-cases"><div id="casesContent"></div></section>
+    <!-- ===== 视图：案例详情 ===== -->
+    <section class="view" id="view-case-detail" aria-labelledby="title-case-detail"><div id="caseDetailContent"></div></section>
+    <!-- ===== 视图：风险预警 ===== -->
+    <section class="view" id="view-risk" aria-labelledby="title-risk"><div id="riskContent"></div></section>
+    <!-- ===== 视图：法规库 ===== -->
+    <section class="view" id="view-regs" aria-labelledby="title-regs"><div id="regsContent"></div></section>
+    <!-- ===== 视图：知识学习中心 ===== -->
+    <section class="view" id="view-learning" aria-labelledby="title-learning"><div id="learningContent"></div></section>
+    <!-- ===== 视图：统计分析中心 ===== -->
+    <section class="view" id="view-stats" aria-labelledby="title-stats"><div id="statsContent"></div></section>
+    <!-- ===== 视图：应急资源与建议跟踪 ===== -->
+    <section class="view" id="view-emergency" aria-labelledby="title-emergency"><div id="emergencyContent"></div></section>
+    <!-- ===== 视图：AI智库 ===== -->
+    <section class="view" id="view-ai" aria-labelledby="title-ai"><div id="aiContent"></div></section>
+    <!-- ===== 视图：航行安全信息（预留） ===== -->
+    <section class="view" id="view-safety" aria-labelledby="title-safety"><div id="safetyContent"></div></section>
+    <!-- ===== 视图：信用与公示（预留） ===== -->
+    <section class="view" id="view-credit" aria-labelledby="title-credit"><div id="creditContent"></div></section>
+    <!-- ===== 视图：关于与帮助 ===== -->
+    <section class="view" id="view-about" aria-labelledby="title-about"><div id="aboutContent"></div></section>
+    <!-- ===== 视图：404 ===== -->
+    <section class="view" id="view-404" aria-labelledby="title-404"><div class="error-view"><h2 class="section-title" id="title-404">404 - 页面未找到</h2><p>这片海域暂时没有航线记录。</p><button class="btn btn-primary" id="backHome" type="button">返回首页</button></div></section>
+  </main>
+
+  <!-- ===== 页脚 ===== -->
+  <footer><div class="container"><p>© 2024 海事典型事故险情复盘与风险预警知识库</p><p class="footer-hint">↑↑↓↓←→←→ 试试？ | 点击右下角罗盘有惊喜</p></div></footer>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+</body>
+
+  <script>
+  (function () {
+    'use strict';
+    var App = {};
+    window.App = App;
+
+    /* ===== 数据与本地存储 ===== */
+    App.CONFIG = { debounceDelay: 280, animationDuration: 350, localStorageKeys: { user: 'maritime_user_data', theme: 'maritime_theme', filters: 'maritime_filters' }, breakpoints: { mobile: 768, tablet: 1024 } };
+    App.store = {
+      get: function (key, fallback) { try { var value = localStorage.getItem(key); return value === null ? fallback : JSON.parse(value); } catch (e) { return fallback; } },
+      set: function (key, value) { try { localStorage.setItem(key, JSON.stringify(value)); return true; } catch (e) { return false; } },
+      remove: function (key) { try { localStorage.removeItem(key); } catch (e) {} },
+      clear: function () { try { localStorage.clear(); } catch (e) {} }
+    };
+    function safe(value) { return String(value == null ? '' : value).replace(/[&<>"']/g, function (ch) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch]; }); }
+    function uid(prefix) { return (prefix || 'id') + '-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+    function sum(list, fn) { return list.reduce(function (total, item) { return total + (fn ? fn(item) : item); }, 0); }
+    function formatDate(value) { var d = new Date(value); return d.getFullYear() + '年' + (d.getMonth() + 1) + '月' + d.getDate() + '日'; }
+
+    var CASES = [{
+      id: 'sanchi-2018', title: '“桑吉”轮与“长峰水晶”轮碰撞燃爆事故', date: '2018-01-06', year: 2018, location: '长江口以东约160海里', waterArea: '东海', type: '碰撞', severity: '特别重大', summary: '两船在能见度良好海况下发生碰撞，造成燃油泄漏、爆燃及大规模人员伤亡。', tags: ['碰撞', '危险品运输', '夜间航行'], source: '中国海事局事故调查公开资料', vessels: [{ name: '桑吉', flag: '巴拿马', type: '油船', owner: 'Bright Shipping Ltd.', cargo: '凝析油', crew: 32, crewNationality: '伊朗、孟加拉国', tonnage: '85,462总吨' }, { name: '长峰水晶', flag: '中国香港', type: '散货船', owner: '长峰航运', cargo: '谷物', crew: 21, crewNationality: '中国', tonnage: '64,000总吨' }], casualties: { deaths: 32, missing: 0, injured: 0, note: '桑吉轮全体船员遇难' }, economicLoss: '约6.8亿元人民币', pollution: '约13.6万吨凝析油及燃油泄漏风险', rescue: { vessels: 32, aircraft: 4, area: '东海、长江口外海', note: '多部门协同开展搜救、监测和残骸处置' },
+      timeline: [
+        { time: '2018-01-06 19:51', title: '两船进入相遇态势', desc: '桑吉轮沿东北方向航行，长峰水晶轮向东南方向航行，雷达已显示双方目标。', level: 'normal' },
+        { time: '20:00', title: '自动识别系统持续报警', desc: '双方CPA持续减小，未见有效的VHF协商记录。', level: 'important' },
+        { time: '20:40', title: '瞭望与避让不足', desc: '驾驶台未及时形成明确的避让方案，船员对相遇态势判断出现偏差。', level: 'important' },
+        { time: '20:48', title: '首次发现对方灯光', desc: '双方在夜间发现对方船灯，已错失最佳大幅度改向时机。', level: 'critical' },
+        { time: '20:50', title: '碰撞发生', desc: '长峰水晶轮船艏撞入桑吉轮右舷货油舱区域。', level: 'critical' },
+        { time: '20:51', title: '凝析油泄漏并起火', desc: '货物与燃油迅速燃烧，火焰和浓烟覆盖船舶上层建筑。', level: 'critical' },
+        { time: '21:05', title: '初始救援力量抵达', desc: '附近船舶报告现场并开展远距离搜救，受火势和爆炸威胁影响难以靠近。', level: 'important' },
+        { time: '01-07 08:00', title: '海空联合搜救展开', desc: '海事、海警、救助和专业清污力量建立联合指挥机制。', level: 'important' },
+        { time: '01-14', title: '船体沉没', desc: '燃烧船体失去浮力后沉没，海域环境监测和残骸风险评估持续开展。', level: 'critical' },
+        { time: '02-12', title: '事故调查阶段性结论', desc: '调查组围绕避碰规则、值班管理、危险货物风险控制等方面提出建议。', level: 'normal' }
+      ],
+      causes: {
+        direct: [{ title: '未及时采取大幅度避让行动', desc: '双方在相遇态势形成后没有尽早、明确地执行避让动作。' }, { title: '碰撞危险未被有效确认', desc: '雷达、AIS和目视信息没有形成一致的态势判断。' }, { title: '通讯协商不足', desc: '未通过可靠方式确认各自意图，导致避让配合失败。' }],
+        human: [{ title: '值班瞭望配置不足', desc: '夜间航行中瞭望职责分配和交接未充分覆盖高风险时段。' }, { title: '规则理解与执行存在偏差', desc: '对《避碰规则》中保持航向与速度、及时行动的要求执行不彻底。' }, { title: '疲劳和工作负荷影响判断', desc: '长航次连续值班使船员警觉性与决策质量下降。' }],
+        vessel: [{ title: '危险货物隔离保护不足', desc: '货油舱、通风和消防系统在极端碰撞后迅速承受超设计风险。' }, { title: '船舶操纵响应存在延迟', desc: '大吨位船舶在高速相遇情形下需要更大的提前量。' }, { title: '关键设备冗余不足', desc: '通信、消防和应急供电在事故后可用性下降。' }],
+        environment: [{ title: '夜间海面背景干扰', desc: '黑暗背景和海面反光增加了目标灯光识别难度。' }, { title: '航路交通密度高', desc: '长江口外海船流交汇，对避碰决策窗口形成压缩。' }, { title: '风流和能见度变化', desc: '局部风流影响相对运动判断，需要持续修正。' }],
+        management: [{ title: '公司风险评估未落到值班场景', desc: '安全管理体系对夜间高密度交汇风险的控制措施不够具体。' }, { title: '培训与演练缺少情景化', desc: '避碰和危险品事故的联合演练未充分模拟连续决策压力。' }, { title: '监督闭环不足', desc: '船岸之间对驾驶台资源管理的检查、复盘和反馈不够及时。' }]
+      },
+      lessons: [{ category: '通用', text: '发现碰撞危险后必须尽早采取明显、连续、可验证的避让行动。' }, { category: '通用', text: 'AIS和雷达是辅助工具，不能替代持续有效的人工瞭望与规则判断。' }, { category: '行业', text: '危险货物运输船舶应把碰撞后火灾、爆炸和污染作为一体化场景演练。' }, { category: '行业', text: '船岸安全管理体系应对高密度水域和夜间值班设置可量化控制点。' }, { category: '特定', text: '重大事故调查建议必须明确责任对象、期限和验证证据，形成闭环。' }],
+      measures: [{ level: '监管', text: '完善重点水域船舶交通组织和高风险时段的航行安全提醒。' }, { level: '企业', text: '将夜间相遇、危险货物碰撞纳入船岸联合风险评估和审计。' }, { level: '船员', text: '执行双人瞭望、明确CPA/TCPA阈值并记录避让决策依据。' }, { level: '技术', text: '优化驾驶台报警分级，确保雷达、AIS和电子海图信息互相校核。' }, { level: '应急', text: '建立危险货物火灾与污染联合响应预案，定期开展跨部门演练。' }, { level: '国际合作', text: '推动跨国船员培训和事故信息共享，统一危险货物风险沟通模板。' }, { level: '复盘', text: '对每次近失事件进行匿名化复盘，将改进措施回灌到SMS和课程。' }],
+      regulations: [{ name: '中华人民共和国海上交通安全法', article: '第三十六条', content: '船舶应当遵守避碰规则，保持正规瞭望。', relation: '适用于航行值班和避碰义务' }, { name: '1972年国际海上避碰规则', article: '第五条', content: '每一船应经常保持正规瞭望。', relation: '直接关联事故原因' }, { name: '1972年国际海上避碰规则', article: '第八条', content: '为避免碰撞所采取的行动应及时、明确和有效。', relation: '直接关联避让措施' }, { name: 'SOLAS公约', article: '第五章', content: '航行安全、航海资料和船舶报告制度。', relation: '关联安全设备和航行管理' }, { name: 'ISM规则', article: '第七节', content: '船上操作计划和程序应覆盖关键安全操作。', relation: '关联公司安全管理体系' }, { name: '危险货物运输安全规则', article: '第九章', content: '危险货物应实施分类、隔离和应急响应。', relation: '关联污染和火灾风险' }],
+      recommendations: [{ content: '针对危险货物船夜间值班开展专项检查', target: '航运企业', status: '推进中', deadline: '2025-12-31', note: '已发布检查清单并开展抽查' }, { content: '建立东海重点航路近失事件共享机制', target: '监管部门', status: '已落实', deadline: '2024-06-30', note: '纳入区域协同平台' }, { content: '完善危险货物事故联合演练评估标准', target: '行业协会', status: '未落实', deadline: '2026-09-30', note: '等待工作组审议' }]
+    }, {
+      id: 'tianjin-2021', title: '沿海散货船夜间能见度下降险情', date: '2021-11-18', year: 2021, location: '渤海湾锚地', waterArea: '渤海', type: '搁浅', severity: '较大', summary: '大雾天气下船舶偏离计划航线，触底后经及时减载和拖带脱险。', tags: ['大雾', '搁浅', '锚地'], source: '区域安全通报', vessels: [{ name: '华北之星', flag: '中国', type: '散货船', owner: '北方航运', cargo: '铁矿石', crew: 19, crewNationality: '中国', tonnage: '38,000总吨' }], casualties: { deaths: 0, missing: 0, injured: 2, note: '两名船员轻伤' }, economicLoss: '约1,200万元人民币', pollution: '无明显污染', rescue: { vessels: 6, aircraft: 0, area: '渤海湾', note: '拖轮协同脱浅' }, timeline: [{ time: '2021-11-18 03:10', title: '能见度快速下降', desc: '大雾覆盖锚地，船舶开启雾航程序。', level: 'important' }, { time: '03:32', title: '偏航', desc: '驾驶台未及时修正流压导致船位偏移。', level: 'critical' }, { time: '04:05', title: '船底触底', desc: '船舶速度下降并出现振动。', level: 'critical' }], causes: { direct: [{ title: '偏离计划航线', desc: '未持续校核船位。' }], human: [{ title: '雾航瞭望不足', desc: '瞭望与雷达标绘不充分。' }], vessel: [{ title: '吃水裕度偏小', desc: '装载状态降低了浅水区安全裕度。' }], environment: [{ title: '突发浓雾', desc: '能见度短时间内显著下降。' }], management: [{ title: '锚地风险评估不足', desc: '未对季节性大雾制定细化措施。' }] }, lessons: [{ category: '通用', text: '低能见度航行要持续核对船位和安全等深线。' }], measures: [{ level: '监管', text: '强化锚地雾航提示。' }, { level: '船员', text: '按程序执行雾航值班。' }], regulations: [{ name: '避碰规则', article: '第十九条', content: '能见度不良时的行动。', relation: '适用' }], recommendations: [], relatedCases: ['sanchi-2018'], tags: ['大雾', '锚地'], source: '区域安全通报'
+    }, {
+      id: 'nanhai-2023', title: '南海渔商船交汇区火灾险情', date: '2023-07-09', year: 2023, location: '南海某渔场', waterArea: '南海', type: '火灾爆炸', severity: '一般', summary: '渔商船交汇区发生机舱火灾，船员按预案控制火势并安全撤离。', tags: ['火灾', '渔船', '应急'], source: '安全教训专题', vessels: [{ name: '海安渔889', flag: '中国', type: '渔船', owner: '海安渔业', cargo: '水产', crew: 8, crewNationality: '中国', tonnage: '980总吨' }], casualties: { deaths: 0, missing: 0, injured: 1, note: '一名船员吸入烟气' }, economicLoss: '约180万元人民币', pollution: '少量燃油泄漏', rescue: { vessels: 3, aircraft: 0, area: '南海渔场', note: '附近渔船协助灭火' }, timeline: [{ time: '2023-07-09 14:20', title: '机舱报警', desc: '值班人员发现烟雾。', level: 'normal' }, { time: '14:28', title: '启动消防预案', desc: '船员关闭通风并使用固定灭火系统。', level: 'important' }], causes: { direct: [{ title: '燃油管路渗漏', desc: '高温部件附近形成可燃蒸气。' }], human: [{ title: '巡检记录不完整', desc: '隐患未在早期被识别。' }], vessel: [{ title: '隔热老化', desc: '机舱局部隔热材料失效。' }], environment: [{ title: '渔船密集', desc: '附近协助资源丰富但操作空间有限。' }], management: [{ title: '预防性维护周期偏长', desc: '老旧设备维护未按风险调整。' }] }, lessons: [{ category: '行业', text: '机舱火灾初期控制和快速通信决定救援窗口。' }], measures: [{ level: '企业', text: '按风险等级缩短燃油系统巡检周期。' }], regulations: [{ name: 'SOLAS公约', article: '第二章', content: '消防安全与探火灭火系统。', relation: '适用' }], recommendations: [], relatedCases: ['tianjin-2021'], tags: ['火灾', '渔船'], source: '安全教训专题'
+    }];
+    var REGULATIONS = [{ id: 'law-maritime', name: '中华人民共和国海上交通安全法', category: '法律', agency: '全国人大常委会', date: '2021-04-29', summary: '规范海上交通秩序，保障航行安全，保护海洋环境。', cases: 18 }, { id: 'colreg', name: '1972年国际海上避碰规则', category: '国际公约', agency: 'IMO', date: '1972-10-20', summary: '规定船舶在各种能见度和交通态势下的避碰责任。', cases: 26 }, { id: 'solas', name: 'SOLAS国际海上人命安全公约', category: '国际公约', agency: 'IMO', date: '1974-11-01', summary: '覆盖船舶构造、设备、操作和安全管理。', cases: 21 }, { id: 'ism', name: '国际安全管理规则（ISM Code）', category: '标准规范', agency: 'IMO', date: '1993-11-04', summary: '建立船公司和船舶安全管理体系。', cases: 12 }, { id: 'dangerous', name: '危险货物运输安全规则', category: '部门规章', agency: '交通运输部', date: '2020-06-01', summary: '明确危险货物分类、申报、积载、隔离与应急要求。', cases: 9 }, { id: 'water-stat', name: '水上交通事故统计办法', category: '部门规章', agency: '交通运输部海事局', date: '2022-01-01', summary: '统一水上交通事故分类、等级和统计口径。', cases: 34 }];
+    var RISKS = [{ id: 'fog', level: '高', title: '秋冬季大雾与低能见度', desc: '东部沿海和渤海湾在秋冬季易出现持续性大雾，瞭望、雷达标绘和航速控制风险同步上升。', season: '10月至次年3月', cases: 12, points: ['提前获取气象预警', '降低航速并保持正规瞭望', '明确CPA/TCPA和雾航报告'] }, { id: 'typhoon', level: '中', title: '台风外围风浪与锚泊走锚', desc: '夏秋台风影响下，锚泊船和小型船舶面临走锚、碰撞和人员落水风险。', season: '7月至10月', cases: 8, points: ['动态核验锚泊状态', '留足安全距离', '按预案提前转移'] }, { id: 'fatigue', level: '中', title: '连续值班导致疲劳决策', desc: '长航次、夜间和高密度水域叠加时，疲劳会削弱目标识别与避碰决策。', season: '全年夜间', cases: 17, points: ['落实休息时间', '驾驶台资源管理', '关键操作双人复核'] }];
+    var RISK_FACTORS = [{ name: '夜间瞭望缺失', level: '高', definition: '未按要求保持连续、有效的目视和雷达瞭望。', controls: '双人值班、交叉核验、记录CPA/TCPA。' }, { name: '疲劳驾驶', level: '中', definition: '连续工作或休息不足影响判断和反应。', controls: '值班计划与疲劳自评结合。' }, { name: '危险货物运输', level: '高', definition: '货物泄漏、火灾或爆炸后产生复合风险。', controls: '分类积载、隔离检查和联合演练。' }, { name: '老旧船技术状况', level: '中', definition: '设备老化导致操纵、消防和通信冗余下降。', controls: '基于风险的维护和重点设备测试。' }];
+    var SAFETY_LESSONS = [{ title: '瞭望与避碰', desc: '用真实雷达画面训练相遇态势判断和行动幅度。', tag: '航行安全' }, { title: '危险品运输', desc: '从申报、积载到事故响应建立全过程风险清单。', tag: '危管防污' }, { title: '应急处置', desc: '把通信、撤离、救助和污染控制放在同一张演练脚本中。', tag: '应急' }, { title: '疲劳管理', desc: '通过班次设计和主动报告降低人为因素风险。', tag: '人员管理' }];
+    var COURSES = [{ id: 'course-colreg', title: '夜间相遇与避碰规则实训', lessons: 5, progress: 40, desc: '用三个典型场景练习CPA/TCPA和及时行动。' }, { id: 'course-fire', title: '危险货物船火灾初期处置', lessons: 4, progress: 0, desc: '从报警、隔离、灭火到外援接应建立应急链条。' }, { id: 'course-sms', title: '把事故教训写进SMS', lessons: 3, progress: 20, desc: '学习将调查建议转成责任、期限和证据。' }];
+    var RECOMMENDATIONS = CASES[0].recommendations.concat([{ content: '将近失事件纳入季度安全例会复盘', target: '航运企业', status: '推进中', deadline: '2026-12-31', note: '已形成模板' }, { content: '发布沿海危险货物船舶风险提示', target: '监管部门', status: '已落实', deadline: '2025-06-30', note: '已发布专题通告' }]);
+    var QUOTES = ['安全不是口号，而是每一次谨慎判断的累积。', '海上没有绝对安全，只有持续准备。', '前事不忘，后事之师；每一条教训都值得被看见。', '保持正规瞭望，就是给未来留出选择。', '风浪会改变航线，严谨会守住方向。'];
+    var ACHIEVEMENTS = [{ id: 'first', icon: '✦', title: '初出茅庐', condition: '阅读1个案例', test: function (u) { return u.readCases.length >= 1; } }, { id: 'many', icon: '✧', title: '博览群案', condition: '阅读10个案例', test: function (u) { return u.readCases.length >= 10; } }, { id: 'star', icon: '★', title: '事故克星', condition: '收藏5个案例', test: function (u) { return u.favoriteCases.length >= 5; } }, { id: 'study', icon: '☼', title: '学海无涯', condition: '连续学习7天', test: function (u) { return u.streakDays >= 7; } }, { id: 'ai', icon: '✺', title: '火眼金睛', condition: '使用AI分析5次', test: function (u) { return u.aiUses >= 5; } }, { id: 'guardian', icon: '⬟', title: '守护者', condition: '提出1条建议', test: function (u) { return u.suggestions >= 1; } }];
+    var DEFAULT_USER = { username: '航海者', avatar: '', avatarType: 'orb', title: '海事安全学习者', organization: '', specialties: ['通航管理'], joinDate: '', readCases: [], favoriteCases: [], completedCourses: [], streakDays: 1, lastVisitDate: '', aiUses: 0, suggestions: 0, aiConfig: { apiKey: '', baseUrl: 'https://api.openai.com/v1', model: 'gpt-4o-mini' }, settings: { theme: 'day', animations: true, sound: false, fontSize: 'medium' }, aiChatHistory: [], feedback: [] };
+    App.data = { cases: CASES, regulations: REGULATIONS, risks: RISKS, riskFactors: RISK_FACTORS, lessons: SAFETY_LESSONS, courses: COURSES, recommendations: RECOMMENDATIONS, quotes: QUOTES, achievements: ACHIEVEMENTS };
+    App.user = Object.assign({}, DEFAULT_USER, App.store.get(App.CONFIG.localStorageKeys.user, {}));
+    App.user.settings = Object.assign({}, DEFAULT_USER.settings, App.user.settings || {});
+    App.user.aiConfig = Object.assign({}, DEFAULT_USER.aiConfig, App.user.aiConfig || {});
+    App.state = { currentRoute: 'home', currentCaseId: null, caseView: 'grid', caseKeyword: '', causeTab: 'direct', reducedMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches, chartInstances: [], konami: [], aiTab: 'review', activeSprout: null };
+    App.data.getCaseById = function (id) { return CASES.find(function (item) { return item.id === id; }); };
+
+    /* ===== 通用组件 ===== */
+    App.ui = {
+      _timer: null,
+      toast: function (message, duration) { var el = document.getElementById('toast'); el.textContent = message; el.classList.add('show'); clearTimeout(this._timer); this._timer = setTimeout(function () { el.classList.remove('show'); }, duration || 3000); },
+      showToast: function (message, duration) { this.toast(message, duration); },
+      highlight: function (text, keyword) { if (!keyword) return safe(text); var escaped = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); return safe(text).replace(new RegExp('(' + escaped + ')', 'gi'), '<mark>$1</mark>'); },
+      severityBadge: function (severity) { var map = { '特别重大': 'badge-danger', '重大': 'badge-danger', '较大': 'badge-warning', '一般': 'badge-success', '小事故': 'badge-info' }; return '<span class="badge ' + (map[severity] || 'badge-info') + '">' + safe(severity) + '</span>'; },
+      levelBadge: function (level) { var cls = level === '高' ? 'badge-danger' : level === '中' ? 'badge-warning' : 'badge-success'; return '<span class="badge ' + cls + '">' + safe(level) + '风险</span>'; },
+      empty: function (message) { return '<div class="glass-card empty-state"><svg viewBox="0 0 100 70" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M10 52c12-18 25-18 40 0s28 18 40 0"/><path d="M24 42c8-17 17-17 26 0"/><circle cx="70" cy="25" r="9"/><path d="M70 16v18M61 25h18"/></svg><p>' + safe(message) + '</p></div>'; },
+      saveUser: function () { App.store.set(App.CONFIG.localStorageKeys.user, App.user); App.userPanel.render(); updateNavUser(); },
+      incrementRead: function (id) { if (App.user.readCases.indexOf(id) === -1) { App.user.readCases.push(id); App.ui.saveUser(); App.ui.toast('已记录本次案例学习'); } }
+    };
+    function updateNavUser() { var name = App.user.username || '航海者'; document.getElementById('navUsername').textContent = name; document.getElementById('navAvatar').textContent = (name.charAt(0) || '航'); if (App.user.avatar) { document.getElementById('navAvatar').style.backgroundImage = 'url(' + App.user.avatar + ')'; document.getElementById('navAvatar').style.backgroundSize = 'cover'; document.getElementById('navAvatar').style.color = 'transparent'; } else { document.getElementById('navAvatar').style.backgroundImage = ''; document.getElementById('navAvatar').style.color = ''; } }
+    function countAllDeaths() { return sum(CASES, function (c) { return c.casualties.deaths; }); }
+    function currentQuote() { return QUOTES[new Date().getDate() % QUOTES.length]; }
+    function titleBlock(title, kicker) { return '<div class="section-head"><h2 class="section-title">' + safe(title) + '</h2>' + (kicker ? '<span class="badge badge-info">' + safe(kicker) + '</span>' : '') + '</div>'; }
+    function cardLink(route, label) { return '<button class="btn btn-ghost route-button" data-route="' + route + '" type="button">' + safe(label) + '</button>'; }
+    function routeButtons(root) { root.querySelectorAll('.route-button').forEach(function (button) { button.addEventListener('click', function () { App.router.navigate('/' + this.dataset.route); }); }); }
+
+    /* ===== 图表 ===== */
+    function clearCharts() { App.state.chartInstances.forEach(function (chart) { try { chart.dispose(); } catch (e) {} }); App.state.chartInstances = []; }
+    function makeChart(id, option) { if (!window.echarts) { var el = document.getElementById(id); if (el) el.innerHTML = '<div class="empty-state">图表引擎加载后将在此呈现</div>'; return null; } var el = document.getElementById(id); if (!el) return null; var chart = window.echarts.init(el); chart.setOption(option); App.state.chartInstances.push(chart); return chart; }
+    function chartTheme() { return { textStyle: { color: getComputedStyle(document.body).getPropertyValue('--text-secondary') }, color: ['#2E86AB', '#56C596', '#F4A261', '#E76F51', '#D4A853', '#E8A0BF'], backgroundColor: 'transparent' }; }
+    function renderHomeCharts() { clearCharts(); var types = {}; CASES.forEach(function (c) { types[c.type] = (types[c.type] || 0) + 1; }); makeChart('accidentTypeChart', Object.assign(chartTheme(), { tooltip: { trigger: 'item' }, legend: { bottom: 0, textStyle: { color: 'var(--text-secondary)' } }, series: [{ type: 'pie', radius: ['42%', '72%'], center: ['50%', '45%'], data: Object.keys(types).map(function (key) { return { name: key, value: types[key] }; }), label: { color: '#5A7A8A' } }] })); var years = {}; CASES.forEach(function (c) { years[c.year] = (years[c.year] || 0) + 1; }); makeChart('yearTrendChart', Object.assign(chartTheme(), { tooltip: { trigger: 'axis' }, grid: { left: 35, right: 15, top: 20, bottom: 28 }, xAxis: { type: 'category', data: Object.keys(years), axisLabel: { color: '#8AA0B8' } }, yAxis: { type: 'value', axisLabel: { color: '#8AA0B8' }, splitLine: { lineStyle: { color: 'rgba(46,134,171,.12)' } } }, series: [{ type: 'line', smooth: true, data: Object.keys(years).map(function (key) { return years[key]; }), lineStyle: { color: '#2E86AB', width: 3 }, areaStyle: { color: 'rgba(46,134,171,.12)' }, symbol: 'circle' }] })); }
+    function resizeCharts() { App.state.chartInstances.forEach(function (chart) { chart.resize(); }); }
+
+    /* ===== 首页驾驶舱 ===== */
+    function renderHome() { var el = document.getElementById('homeContent'); var metricData = [{ label: '收录案例总数', value: CASES.length, icon: '◈' }, { label: '特别重大事故', value: CASES.filter(function (c) { return c.severity === '特别重大'; }).length, icon: '✦' }, { label: '累计遇难人数', value: countAllDeaths(), icon: '♢' }, { label: '覆盖事故类型', value: new Set(CASES.map(function (c) { return c.type; })).size, icon: '⌁' }, { label: '关联法规数', value: REGULATIONS.length, icon: '⚖' }, { label: 'AI分析次数', value: App.user.aiUses, icon: '✧' }]; var metrics = metricData.map(function (m) { return '<div class="glass-card metric-card"><span class="metric-icon">' + m.icon + '</span><small>' + m.label + '</small><strong class="metric-number" data-value="' + m.value + '">0</strong><span class="text-muted">持续更新</span></div>'; }).join(''); var latest = CASES.slice().sort(function (a, b) { return b.date.localeCompare(a.date); }).map(function (c) { return '<article class="glass-card latest-card" data-case-id="' + c.id + '"><div><h3>' + safe(c.title) + '</h3><p>' + safe(c.date) + ' · ' + safe(c.location) + ' · ' + safe(c.summary) + '</p></div>' + App.ui.severityBadge(c.severity) + '</article>'; }).join(''); var risks = RISKS.map(function (r) { return '<article class="glass-card risk-card"><div><h3 class="risk-level-' + (r.level === '高' ? 'high' : r.level === '中' ? 'medium' : 'low') + '">' + safe(r.title) + '</h3><p>' + safe(r.season) + ' · 关联案例 ' + r.cases + ' 起</p></div>' + App.ui.levelBadge(r.level) + '</article>'; }).join(''); el.innerHTML = '<div class="hero glass-card"><div><div class="hero-kicker">MARITIME KNOWLEDGE · NAVIGATOR</div><h1>航行于事故教训之海<span>REVIEW · PREVENT · PROTECT</span></h1><p>把每一次事故复盘成下一次安全航行的罗盘，让事实、法规与经验在同一片知识海域汇流。</p></div><div class="hero-quote"><time>' + formatDate(new Date()) + '</time><span>“' + safe(currentQuote()) + '”</span></div></div><div class="metrics-grid">' + metrics + '</div><div class="dashboard-grid"><div><div class="section-head"><h2 class="section-title">最新案例速递</h2>' + cardLink('cases', '进入案例库') + '</div><div class="latest-list">' + latest + '</div></div><div><div class="section-head"><h2 class="section-title">当前风险预警</h2>' + cardLink('risk', '查看全部') + '</div><div class="risk-list">' + risks + '</div></div></div><div class="dashboard-grid"><div class="glass-card chart-card"><h3 class="section-title">事故类型分布</h3><div id="accidentTypeChart" class="chart"></div></div><div class="glass-card chart-card"><h3 class="section-title">年度趋势</h3><div id="yearTrendChart" class="chart"></div></div></div><div class="section-head"><h2 class="section-title">八方快捷入口</h2><span class="badge badge-info">精灵导航</span></div><div class="quick-grid">' + [{ route: 'cases', icon: '✎', label: '事故案例' }, { route: 'risk', icon: '◈', label: '风险预警' }, { route: 'regs', icon: '⚖', label: '法规标准' }, { route: 'learning', icon: '☼', label: '知识学习' }, { route: 'stats', icon: '∑', label: '统计分析' }, { route: 'emergency', icon: '⬟', label: '应急资源' }, { route: 'ai', icon: '✧', label: 'AI智库' }, { route: 'safety', icon: '⌁', label: '航行安全' }].map(function (q) { return '<button class="glass-card quick-entry route-button" data-route="' + q.route + '" type="button"><span>' + q.icon + '</span><strong>' + q.label + '</strong></button>'; }).join('') + '</div><div class="section-head" style="margin-top:24px"><h2 class="section-title">今日AI洞察</h2></div><div class="glass-card insight"><strong>玄机提示：</strong> ' + (App.user.aiConfig.apiKey ? '已配置模型，可前往 AI 智库进行事故复盘、法规问答与风险推演。' : '先从案例中的“及时行动”和“正规瞭望”开始，把每一个安全细节落实到值班记录中。') + '</div>'; el.querySelectorAll('.latest-card').forEach(function (card) { card.addEventListener('click', function () { App.router.navigate('/case/' + this.dataset.caseId); }); }); el.querySelectorAll('.metric-number').forEach(function (node) { animateNumber(node, Number(node.dataset.value)); }); routeButtons(el); renderHomeCharts(); }
+    function animateNumber(element, target) { if (App.state.reducedMotion) { element.textContent = target.toLocaleString(); return; } var start = null; function step(time) { if (!start) start = time; var progress = Math.min((time - start) / 1200, 1); var eased = 1 - Math.pow(1 - progress, 3); element.textContent = Math.floor(eased * target).toLocaleString(); if (progress < 1) requestAnimationFrame(step); } requestAnimationFrame(step); }
+
+    /* ===== 案例库与详情 ===== */
+    function caseMatches(c, keyword, type, severity) { var hay = [c.title, c.summary, c.location, c.waterArea, c.type, c.tags.join(' ')].join(' ').toLowerCase(); return (!keyword || hay.indexOf(keyword.toLowerCase()) >= 0) && (!type || type === 'all' || c.type === type) && (!severity || severity === 'all' || c.severity === severity); }
+    function renderCases() { var el = document.getElementById('casesContent'); var keyword = App.state.caseKeyword; var type = el.dataset.type || 'all'; var severity = el.dataset.severity || 'all'; var list = CASES.filter(function (c) { return caseMatches(c, keyword, type, severity); }); var cards = list.map(function (c) { var fav = App.user.favoriteCases.indexOf(c.id) >= 0; return '<article class="glass-card case-card" data-case-id="' + c.id + '"><div class="case-top"><span class="tag">' + safe(c.type) + '</span><button class="favorite" data-favorite="' + c.id + '" aria-label="' + (fav ? '取消收藏' : '收藏案例') + '" type="button">' + (fav ? '★' : '☆') + '</button></div><h3>' + App.ui.highlight(c.title, keyword) + '</h3><p>' + App.ui.highlight(c.summary, keyword) + '</p><div class="case-meta"><span>' + safe(c.date) + '</span><span>' + safe(c.location) + '</span><span>遇难 ' + c.casualties.deaths + ' 人</span>' + App.ui.severityBadge(c.severity) + '</div></article>'; }).join(''); var typeOptions = ['碰撞', '搁浅', '触礁', '触碰', '浪损', '火灾爆炸', '风灾', '自沉', '操作性污染', '其他']; el.innerHTML = titleBlock('事故案例库', '共 ' + list.length + ' 起') + '<div class="glass-card toolbar"><input id="caseSearch" type="search" value="' + safe(keyword) + '" placeholder="关键词、地点、船名..." aria-label="案例搜索"><select id="caseType" aria-label="事故类型"><option value="all">全部事故类型</option>' + typeOptions.map(function (x) { return '<option value="' + x + '"' + (type === x ? ' selected' : '') + '>' + x + '</option>'; }).join('') + '</select><select id="caseSeverity" aria-label="事故等级"><option value="all">全部事故等级</option>' + ['特别重大', '重大', '较大', '一般', '小事故'].map(function (x) { return '<option value="' + x + '"' + (severity === x ? ' selected' : '') + '>' + x + '</option>'; }).join('') + '</select><button class="filter-chip ' + (App.state.caseView === 'grid' ? 'active' : '') + '" data-view="grid" type="button">卡片</button><button class="filter-chip ' + (App.state.caseView === 'list' ? 'active' : '') + '" data-view="list" type="button">列表</button><button class="filter-chip" id="exportCases" type="button">导出JSON</button></div><div class="case-toolbar-note"><span class="tag">十大分类</span> 碰撞 · 搁浅 · 触礁 · 触碰 · 浪损 · 火灾爆炸 · 风灾 · 自沉 · 操作性污染 · 其他</div><div class="case-grid">' + (cards || App.ui.empty('没有找到匹配的案例，试试清空筛选条件。')) + '</div>'; if (App.state.caseView === 'list') el.classList.add('list-view'); else el.classList.remove('list-view'); var search = el.querySelector('#caseSearch'); search.addEventListener('input', App.utils.debounce(function (e) { App.state.caseKeyword = e.target.value; renderCases(); }, App.CONFIG.debounceDelay)); el.querySelector('#caseType').addEventListener('change', function () { el.dataset.type = this.value; renderCases(); }); el.querySelector('#caseSeverity').addEventListener('change', function () { el.dataset.severity = this.value; renderCases(); }); el.querySelectorAll('[data-view]').forEach(function (b) { b.addEventListener('click', function () { App.state.caseView = this.dataset.view; renderCases(); }); }); el.querySelectorAll('.case-card').forEach(function (card) { card.addEventListener('click', function (e) { if (e.target.closest('.favorite')) return; App.router.navigate('/case/' + this.dataset.caseId); }); }); el.querySelectorAll('[data-favorite]').forEach(function (button) { button.addEventListener('click', function (e) { e.stopPropagation(); var id = this.dataset.favorite; var index = App.user.favoriteCases.indexOf(id); if (index >= 0) App.user.favoriteCases.splice(index, 1); else App.user.favoriteCases.push(id); App.ui.saveUser(); renderCases(); App.ui.toast(index >= 0 ? '已取消收藏' : '已收藏案例'); }); }); var exportButton = el.querySelector('#exportCases'); exportButton.addEventListener('click', function () { downloadJSON('maritime-cases.json', CASES); }); }
+    function renderCaseDetail(id) { var c = App.data.getCaseById(id); var el = document.getElementById('caseDetailContent'); if (!c) { el.innerHTML = App.ui.empty('案例不存在，请返回案例库重新选择。'); return; } App.ui.incrementRead(c.id); var fav = App.user.favoriteCases.indexOf(c.id) >= 0; var causeTabs = Object.keys(c.causes); var causeName = { direct: '直接原因', human: '人为因素', vessel: '船舶因素', environment: '环境因素', management: '管理因素' }; var causeItems = c.causes[App.state.causeTab] || c.causes.direct; var timeline = c.timeline.map(function (t) { return '<div class="timeline-item ' + (t.level === 'critical' ? 'critical' : '') + '"><span class="timeline-time">' + safe(t.time) + '</span><strong> ' + safe(t.title) + '</strong><p>' + safe(t.desc) + '</p></div>'; }).join(''); var vessels = c.vessels.map(function (v) { return '<div class="glass-card side-card"><h4>' + safe(v.name) + '</h4><p>' + safe(v.flag) + ' · ' + safe(v.type) + '<br>所有人：' + safe(v.owner) + '<br>载货：' + safe(v.cargo) + '<br>船员：' + v.crew + '人 · ' + safe(v.tonnage) + '</p></div>'; }).join(''); el.innerHTML = '<div class="detail-hero glass-card"><div class="breadcrumbs">首页 / 案例库 / 事故复盘</div><h1>' + safe(c.title) + '</h1><div class="detail-meta"><span>' + safe(c.date) + '</span><span>' + safe(c.location) + '</span><span>' + safe(c.type) + '</span>' + App.ui.severityBadge(c.severity) + '<span>遇难 ' + c.casualties.deaths + ' 人</span><span>损失 ' + safe(c.economicLoss) + '</span></div><div class="detail-actions"><button class="btn btn-ghost" id="toggleFavorite" type="button">' + (fav ? '★ 已收藏' : '☆ 收藏案例') + '</button><button class="btn btn-ghost" id="printCase" type="button">打印复盘</button><button class="btn btn-primary" id="toAI" type="button">让AI分析本案</button></div></div><div class="detail-layout"><div class="detail-content"><section class="glass-card detail-section"><h3>事故概述</h3><p>' + safe(c.summary) + ' 调查资料来源：' + safe(c.source) + '。伤亡：' + c.casualties.deaths + '人遇难、' + c.casualties.injured + '人受伤。污染情况：' + safe(c.pollution) + '。</p></section><section class="glass-card detail-section"><h3>涉事船舶</h3><div class="resource-grid">' + vessels + '</div></section><section class="glass-card detail-section"><h3>事故经过时间线</h3><div class="timeline">' + timeline + '</div></section><section class="glass-card detail-section"><h3>原因深度分析</h3><div class="cause-tabs">' + causeTabs.map(function (key) { return '<button class="cause-tab ' + (App.state.causeTab === key ? 'active' : '') + '" data-cause="' + key + '" type="button">' + causeName[key] + '</button>'; }).join('') + '</div><ol class="cause-list">' + causeItems.map(function (item) { return '<li><strong>' + safe(item.title) + '</strong>：' + safe(item.desc) + '</li>'; }).join('') + '</ol></section><section class="glass-card detail-section"><h3>事故教训</h3><ol class="numbered-list">' + c.lessons.map(function (x) { return '<li><span class="tag">' + safe(x.category) + '</span> <strong>' + safe(x.text) + '</strong></li>'; }).join('') + '</ol></section><section class="glass-card detail-section"><h3>防范措施</h3><ol class="numbered-list">' + c.measures.map(function (x) { return '<li><span class="tag">' + safe(x.level) + '</span> ' + safe(x.text) + '</li>'; }).join('') + '</ol></section><section class="glass-card detail-section"><h3>法规对照</h3><table class="data-table"><thead><tr><th>法规</th><th>条款</th><th>适用说明</th></tr></thead><tbody>' + c.regulations.map(function (x) { return '<tr><td>' + safe(x.name) + '</td><td>' + safe(x.article) + '</td><td>' + safe(x.relation) + '</td></tr>'; }).join('') + '</tbody></table></section><section class="glass-card detail-section"><h3>整改建议跟踪</h3><table class="data-table"><thead><tr><th>建议</th><th>对象</th><th>状态</th><th>期限</th></tr></thead><tbody>' + c.recommendations.map(function (x) { return '<tr><td>' + safe(x.content) + '</td><td>' + safe(x.target) + '</td><td>' + safe(x.status) + '</td><td>' + safe(x.deadline) + '</td></tr>'; }).join('') + '</tbody></table></section></div><aside class="side-rail"><div class="glass-card side-card"><h4>伤亡与损失</h4><p>遇难：' + c.casualties.deaths + ' 人<br>失踪：' + c.casualties.missing + ' 人<br>受伤：' + c.casualties.injured + ' 人<br>经济损失：' + safe(c.economicLoss) + '</p></div><div class="glass-card side-card"><h4>救援回顾</h4><p>救援船舶：' + c.rescue.vessels +'<br>航空器：' + c.rescue.aircraft + '<br>' + safe(c.rescue.note) + '</p></div><div class="glass-card side-card"><h4>关键词</h4><div class="tag-list">' + c.tags.map(function (tag) { return '<span class="tag">' + safe(tag) + '</span>'; }).join('') + '</div></div></aside></div>'; el.querySelectorAll('[data-cause]').forEach(function (b) { b.addEventListener('click', function () { App.state.causeTab = this.dataset.cause; renderCaseDetail(id); }); }); el.querySelector('#toggleFavorite').addEventListener('click', function () { var index = App.user.favoriteCases.indexOf(c.id); if (index >= 0) App.user.favoriteCases.splice(index, 1); else App.user.favoriteCases.push(c.id); App.ui.saveUser(); renderCaseDetail(id); }); el.querySelector('#printCase').addEventListener('click', function () { window.print(); }); el.querySelector('#toAI').addEventListener('click', function () { App.state.aiSeed = c.title + '\n' + c.summary; App.router.navigate('/ai'); }); }
+
+    /* ===== 风险、法规、学习、统计、应急、关于 ===== */
+    function renderRisk() { var el = document.getElementById('riskContent'); var month = new Date().getMonth() + 1; var season = month >= 3 && month <= 5 ? '春季渔汛与能见度变化' : month >= 6 && month <= 9 ? '夏季台风与强对流' : '秋冬大雾与寒潮'; el.innerHTML = titleBlock('风险预警中心', '实时风险态势') + '<div class="hero glass-card"><div><div class="hero-kicker">SEASONAL WATCH · ' + season.toUpperCase() + '</div><h1>风起于青萍之末</h1><p>将事故数据、季节变化和风险因子汇聚成一张可行动的安全提醒图谱。</p></div><div class="hero-quote"><time>本月重点</time><span>建议优先检查低能见度航行值班、锚泊状态和危险货物隔离措施。</span></div></div><div class="risk-grid">' + RISKS.map(function (r) { return '<article class="glass-card risk-card-large"><div>' + App.ui.levelBadge(r.level) + '</div><h3>' + safe(r.title) + '</h3><p>' + safe(r.desc) + '</p><p><strong>高发时段：</strong>' + safe(r.season) + ' · 关联案例 ' + r.cases + ' 起</p><div class="tag-list">' + r.points.map(function (p) { return '<span class="tag">' + safe(p) + '</span>'; }).join('') + '</div><button class="btn btn-ghost route-button" data-route="cases" type="button">查看关联案例</button></article>'; }).join('') + '</div><div class="section-head" style="margin-top:24px"><h2 class="section-title">风险因子库</h2><span class="badge badge-info">可检索</span></div><div class="reg-grid">' + RISK_FACTORS.map(function (f) { return '<article class="glass-card reg-card"><div>' + App.ui.levelBadge(f.level) + '</div><h3>' + safe(f.name) + '</h3><p>' + safe(f.definition) + '</p><p><strong>防控：</strong>' + safe(f.controls) + '</p></article>'; }).join('') + '</div><div class="section-head" style="margin-top:24px"><h2 class="section-title">AI风险推演</h2></div><div class="glass-card insight"><p>输入“今夜东海大雾，油船与渔船密集区交汇”等场景，让玄机生成风险等级与防范建议。</p><div style="margin-top:12px">' + cardLink('ai', '进入风险推演台') + '</div></div>'; routeButtons(el); }
+    function renderRegs() { var el = document.getElementById('regsContent'); el.innerHTML = titleBlock('法规标准库', '可追溯引用') + '<div class="glass-card toolbar"><input id="regSearch" type="search" placeholder="搜索法规名称、机构或摘要" aria-label="法规搜索"><select id="regCategory"><option value="all">全部分类</option><option>国际公约</option><option>法律</option><option>部门规章</option><option>标准规范</option></select></div><div id="regList" class="reg-grid"></div><div class="section-head" style="margin-top:24px"><h2 class="section-title">法规更新时间线</h2></div><div class="glass-card detail-section"><div class="timeline">' + REGULATIONS.slice().sort(function (a, b) { return b.date.localeCompare(a.date); }).map(function (r) { return '<div class="timeline-item"><span class="timeline-time">' + safe(r.date) + '</span><strong> ' + safe(r.name) + '</strong><p>' + safe(r.agency) + ' · ' + safe(r.summary) + '</p></div>'; }).join('') + '</div></div>'; function update() { var q = (el.querySelector('#regSearch').value || '').toLowerCase(); var cat = el.querySelector('#regCategory').value; var list = REGULATIONS.filter(function (r) { return (!q || (r.name + r.agency + r.summary).toLowerCase().indexOf(q) >= 0) && (cat === 'all' || r.category === cat); }); el.querySelector('#regList').innerHTML = list.map(function (r) { return '<article class="glass-card reg-card"><span class="tag">' + safe(r.category) + '</span><h3>' + safe(r.name) + '</h3><p>' + safe(r.summary) + '</p><p><strong>发布机构：</strong>' + safe(r.agency) + '<br><strong>发布日期：</strong>' + safe(r.date) + '<br><strong>关联案例：</strong>' + r.cases + ' 起</p><button class="btn btn-ghost ai-reg" data-reg="' + r.id + '" type="button">AI解读</button></article>'; }).join('') || App.ui.empty('没有找到匹配法规。'); el.querySelectorAll('.ai-reg').forEach(function (b) { b.addEventListener('click', function () { App.state.aiSeed = '请解读法规：' + REGULATIONS.find(function (r) { return r.id === b.dataset.reg; }).name; App.router.navigate('/ai'); }); }); } el.querySelector('#regSearch').addEventListener('input', App.utils.debounce(update, 220)); el.querySelector('#regCategory').addEventListener('change', update); update(); }
+    function renderLearning() { var el = document.getElementById('learningContent'); el.innerHTML = titleBlock('知识学习中心', '安全教训 · 课程 · 公告') + '<div class="lesson-grid">' + SAFETY_LESSONS.map(function (l) { return '<article class="glass-card lesson-card"><span class="tag">' + safe(l.tag) + '</span><h3>' + safe(l.title) + '</h3><p>' + safe(l.desc) + '</p><button class="btn btn-ghost lesson-toast" type="button">开始阅读</button></article>'; }).join('') + '</div><div class="section-head" style="margin-top:24px"><h2 class="section-title">案例复盘课程</h2></div><div class="resource-grid">' + COURSES.map(function (course) { var done = App.user.completedCourses.indexOf(course.id) >= 0; return '<article class="glass-card resource-card"><span class="tag">' + course.lessons + ' 个章节</span><h3>' + safe(course.title) + '</h3><p>' + safe(course.desc) + '</p><div class="skeleton" style="height:6px;margin:12px 0;background:linear-gradient(90deg,var(--color-primary) ' + (done ? 100 : course.progress) + '%,var(--bg-card-border) 0)"></div><button class="btn btn-primary course-done" data-course="' + course.id + '" type="button">' + (done ? '已完成' : '完成课程') + '</button></article>'; }).join('') + '</div><div class="glass-card insight" style="margin-top:24px"><strong>即时安全公告：</strong>近期重点关注低能见度航行、危险货物隔离和船岸联合演练。阅读记录会同步到用户面板。</div>'; el.querySelectorAll('.lesson-toast').forEach(function (b) { b.addEventListener('click', function () { App.ui.toast('安全教训文章已加入学习记录'); }); }); el.querySelectorAll('.course-done').forEach(function (b) { b.addEventListener('click', function () { if (App.user.completedCourses.indexOf(this.dataset.course) < 0) App.user.completedCourses.push(this.dataset.course); App.ui.saveUser(); renderLearning(); App.ui.toast('课程完成，恭喜获得学习进度'); }); }); }
+    function renderStats() { var el = document.getElementById('statsContent'); var total = CASES.length; var high = CASES.filter(function (c) { return c.severity === '特别重大' || c.severity === '重大'; }).length; el.innerHTML = titleBlock('统计分析中心', '数据会说话') + '<div class="metrics-grid"><div class="glass-card metric-card"><small>事故总数</small><strong>' + total + '</strong><span>示范数据</span></div><div class="glass-card metric-card"><small>高等级事故</small><strong>' + high + '</strong><span>需重点复盘</span></div><div class="glass-card metric-card"><small>伤亡人数</small><strong>' + countAllDeaths() + '</strong><span>累计遇难</span></div><div class="glass-card metric-card"><small>整改建议</small><strong>' + RECOMMENDATIONS.length + '</strong><span>持续跟踪</span></div></div><div class="dashboard-grid"><div class="glass-card chart-card"><h3 class="section-title">五年事故趋势</h3><div id="statsTrend" class="chart"></div></div><div class="glass-card chart-card"><h3 class="section-title">事故等级结构</h3><div id="statsSeverity" class="chart"></div></div></div><div class="section-head"><h2 class="section-title">多维交叉分析</h2><button class="btn btn-ghost" id="exportStats" type="button">导出CSV/JSON</button></div><div class="glass-card detail-section"><table class="data-table"><thead><tr><th>水域</th><th>案例数</th><th>主要类型</th><th>重点风险</th></tr></thead><tbody>' + ['东海', '渤海', '南海', '黄海'].map(function (area) { var rows = CASES.filter(function (c) { return c.waterArea === area; }); return '<tr><td>' + area + '</td><td>' + rows.length + '</td><td>' + (rows[0] ? rows[0].type : '待补充') + '</td><td>' + (rows[0] ? rows[0].tags[0] : '待补充') + '</td></tr>'; }).join('') + '</tbody></table></div>'; clearCharts(); makeChart('statsTrend', Object.assign(chartTheme(), { xAxis: { type: 'category', data: ['2020', '2021', '2022', '2023', '2024'] }, yAxis: { type: 'value' }, series: [{ type: 'line', smooth: true, data: [2, 4, 3, 5, 4], areaStyle: { color: 'rgba(46,134,171,.12)' }, lineStyle: { color: '#D4A853', width: 3 } }] })); makeChart('statsSeverity', Object.assign(chartTheme(), { tooltip: { trigger: 'item' }, series: [{ type: 'pie', radius: ['38%', '70%'], data: ['特别重大', '重大', '较大', '一般'].map(function (x) { return { name: x, value: CASES.filter(function (c) { return c.severity === x; }).length }; }) }] })); el.querySelector('#exportStats').addEventListener('click', function () { downloadJSON('maritime-statistics.json', { cases: CASES.length, deaths: countAllDeaths(), recommendations: RECOMMENDATIONS.length }); }); }
+    function renderEmergency() { var el = document.getElementById('emergencyContent'); el.innerHTML = titleBlock('应急资源与建议跟踪', '守护每一次响应') + '<div class="resource-grid"><article class="glass-card resource-card"><span class="tag">预案库</span><h3>碰撞与火灾联合处置</h3><p>报警、隔离、搜救、消防、污染控制和信息发布的六步响应模板。</p><button class="btn btn-ghost" data-emergency-toast type="button">查看预案</button></article><article class="glass-card resource-card"><span class="tag">资源地图</span><h3>专业救助力量</h3><p>预留救助船、航空器、清污设备和应急队伍分布接口。</p><button class="btn btn-ghost" data-emergency-toast type="button">查看资源</button></article><article class="glass-card resource-card"><span class="tag">联络信息</span><h3>搜救中心联络</h3><p>北部、东部、南部海区联络信息结构已预留，数据可替换。</p><button class="btn btn-ghost" data-emergency-toast type="button">展开联络</button></article></div><div class="section-head" style="margin-top:24px"><h2 class="section-title">整改建议跟踪表</h2><select id="recommendationStatus" class="filter-chip" aria-label="建议状态"><option value="all">全部状态</option><option>已落实</option><option>推进中</option><option>未落实</option></select></div><div class="glass-card detail-section"><table class="data-table"><thead><tr><th>建议内容</th><th>对象</th><th>期限</th><th>状态</th><th>落实说明</th></tr></thead><tbody id="recommendationRows"></tbody></table></div>'; function update() { var state = el.querySelector('#recommendationStatus').value; el.querySelector('#recommendationRows').innerHTML = RECOMMENDATIONS.filter(function (r) { return state === 'all' || r.status === state; }).map(function (r) { return '<tr><td>' + safe(r.content) + '</td><td>' + safe(r.target) + '</td><td>' + safe(r.deadline) + '</td><td>' + safe(r.status) + '</td><td>' + safe(r.note) + '</td></tr>'; }).join(''); } el.querySelector('#recommendationStatus').addEventListener('change', update); el.querySelectorAll('[data-emergency-toast]').forEach(function (b) { b.addEventListener('click', function () { App.ui.toast('应急资源接口已就绪，等待接入区域数据'); }); }); update(); }
+    function renderReserved(id, title, message, route) { var el = document.getElementById(id + 'Content'); el.innerHTML = titleBlock(title, '预留扩展') + '<div class="glass-card empty-state"><svg viewBox="0 0 100 70" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M15 52h70M25 52V30l25-16 25 16v22M35 52V36h30v16"/><path d="M50 14v-8M44 10h12"/></svg><h3>' + safe(message) + '</h3><p>导航、数据结构和接口已预留，后续可直接接入真实服务。</p>' + (route ? cardLink(route, '返回相关模块') : '') + '</div>'; routeButtons(el); }
+    function renderAbout() { var el = document.getElementById('aboutContent'); el.innerHTML = titleBlock('关于与帮助', '让教训持续产生价值') + '<div class="dashboard-grid"><article class="glass-card detail-section"><h3>系统介绍</h3><p>海事知识库以事故调查、风险预警、法规标准和安全学习为核心，将事实、规则和行动建议连接在同一张知识图谱上。</p><h3>数据来源</h3><p>示范数据依据公开事故调查资料、国际海事组织和国内海事安全管理实践整理，正式部署时应保留原始出处和审校记录。</p></article><article class="glass-card detail-section"><h3>快捷键</h3><p><strong>Ctrl / ⌘ + K</strong> 聚焦搜索<br><strong>Ctrl / ⌘ + 1~9</strong> 切换核心模块<br><strong>Ctrl / ⌘ + I</strong> 打开AI智库<br><strong>?</strong> 显示快捷键说明</p><h3>版本</h3><p>基础框架 v1.0 · 单文件原生 JavaScript · 可替换数据层</p></article></div>'; }
+    function downloadJSON(filename, data) { var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }); var url = URL.createObjectURL(blob); var a = document.createElement('a'); a.href = url; a.download = filename; a.click(); setTimeout(function () { URL.revokeObjectURL(url); }, 300); App.ui.toast('已导出 ' + filename); }
+
+    /* ===== AI智库 ===== */
+    var AI_SYSTEM_PROMPT = '你是一名资深海事事故调查专家，精通海上交通安全法、避碰规则、SOLAS、ISM等国际国内法规。请严格按照人-船-环境-管理四要素分析原因，结构化分点论述，给出可执行的防范措施；不做最终判决，所有法律判断标注“仅供参考”；使用中文，专业但易懂。';
+    function encodeSecret(value) { try { return btoa(unescape(encodeURIComponent(value))); } catch (e) { return value; } }
+    function decodeSecret(value) { try { return decodeURIComponent(escape(atob(value))); } catch (e) { return value; } }
+    function renderAI() { var el = document.getElementById('aiContent'); var configured = !!App.user.aiConfig.apiKey; el.innerHTML = titleBlock('AI智库', '玄机 · 大模型辅助决策') + '<div class="ai-shell"><aside class="glass-card ai-nav"><button class="' + (App.state.aiTab === 'review' ? 'active' : '') + '" data-ai-tab="review" type="button">事故复盘助手</button><button class="' + (App.state.aiTab === 'law' ? 'active' : '') + '" data-ai-tab="law" type="button">法规智能问答</button><button class="' + (App.state.aiTab === 'risk' ? 'active' : '') + '" data-ai-tab="risk" type="button">风险推演台</button><button class="' + (App.state.aiTab === 'similar' ? 'active' : '') + '" data-ai-tab="similar" type="button">案例相似度</button><button class="' + (App.state.aiTab === 'judgment' ? 'active' : '') + '" data-ai-tab="judgment" type="button">判决辅助</button><button class="' + (configured ? '' : 'active') + '" data-ai-tab="config" type="button">AI配置</button></aside><div class="ai-main">' + (App.state.aiTab === 'config' || !configured ? aiConfigView() : aiToolView()) + '</div></div>'; el.querySelectorAll('[data-ai-tab]').forEach(function (b) { b.addEventListener('click', function () { App.state.aiTab = this.dataset.aiTab; renderAI(); }); }); bindAIEvents(el); }
+    function aiConfigView() { return '<div class="glass-card ai-config-card"><h3 class="section-title">建立魔法契约</h3><p class="ai-note">API Key 仅以本地 base64 形式保存于当前浏览器，不会上传到本系统；这不是加密存储，请勿在共享设备上保存敏感密钥。</p><form id="aiConfigForm" class="ai-form"><label>API Key<input id="aiKey" type="password" autocomplete="off" value="' + safe(App.user.aiConfig.apiKey ? decodeSecret(App.user.aiConfig.apiKey) : '') + '" placeholder="sk-..."></label><label>API Base URL<input id="aiBase" type="url" value="' + safe(App.user.aiConfig.baseUrl) + '"></label><label>模型名称<input id="aiModel" value="' + safe(App.user.aiConfig.model) + '"></label><div><button class="btn btn-primary" type="submit">保存配置</button> <button class="btn btn-ghost" id="testAI" type="button">测试连接</button></div></form><p id="aiConfigStatus" class="text-muted" style="margin-top:12px">兼容 OpenAI /chat/completions 格式的服务均可接入。</p></div>'; }
+    function aiToolView() { var seed = App.state.aiSeed || ''; var title = App.state.aiTab === 'review' ? '事故复盘助手' : App.state.aiTab === 'law' ? '法规智能问答' : App.state.aiTab === 'risk' ? '风险推演台' : App.state.aiTab === 'similar' ? '案例相似度匹配' : '判决辅助（仅供参考）'; var placeholder = App.state.aiTab === 'risk' ? '描述天气、船型、水域和行动场景...' : App.state.aiTab === 'law' ? '例如：能见度不良时船舶有哪些避碰义务？' : App.state.aiTab === 'similar' ? '输入事故特征、船型、海况和原因...' : '请描述事故经过，或从案例详情导入...'; var history = App.user.aiChatHistory || []; return '<div class="glass-card chat-shell"><div class="section-head"><h3 class="section-title">' + title + '</h3><button class="btn btn-ghost" id="clearChat" type="button">清空对话</button></div>' + (App.state.aiTab === 'judgment' ? '<p class="ai-note">本结果由AI生成，仅供学习参考，不构成任何法律意见或处罚依据。</p>' : '') + '<div id="chatMessages" class="chat-messages">' + (history.length ? history.map(function (m) { return '<div class="chat-message ' + m.role + '">' + safe(m.content) + '</div>'; }).join('') : '<div class="empty-state"><p>玄机已就位。输入问题，开始推演。</p></div>') + '</div><div class="chat-composer"><input id="aiInput" class="chat-input" value="' + safe(seed) + '" placeholder="' + placeholder + '" aria-label="AI问题"><button class="btn btn-primary" id="sendAI" type="button">发送</button></div><p class="typing" id="aiTyping" hidden>玄机正在推演</p></div><div class="glass-card detail-section" style="margin-top:20px"><h3>参考资料区</h3><p>知识库已载入 ' + CASES.length + ' 起案例、' + REGULATIONS.length + ' 部法规和 ' + RISK_FACTORS.length + ' 个风险因子。AI回答应结合原始资料人工复核。</p></div>'; }
+    function bindAIEvents(root) { var configForm = root.querySelector('#aiConfigForm'); if (configForm) { configForm.addEventListener('submit', function (e) { e.preventDefault(); App.user.aiConfig.apiKey = encodeSecret(root.querySelector('#aiKey').value.trim()); App.user.aiConfig.baseUrl = root.querySelector('#aiBase').value.trim().replace(/\/$/, ''); App.user.aiConfig.model = root.querySelector('#aiModel').value.trim() || 'gpt-4o-mini'; App.ui.saveUser(); App.state.aiTab = 'review'; renderAI(); App.ui.toast('AI配置已保存'); }); var test = root.querySelector('#testAI'); test.addEventListener('click', function () { var status = root.querySelector('#aiConfigStatus'); status.textContent = '正在测试连接...'; var key = root.querySelector('#aiKey').value.trim(); if (!key) { status.textContent = '请先填写 API Key。'; return; } callAI([{ role: 'user', content: '请只回复：连接成功' }], { key: key, base: root.querySelector('#aiBase').value.trim(), model: root.querySelector('#aiModel').value.trim() }).then(function (result) { status.textContent = '连接成功：' + result.slice(0, 40); }).catch(function (err) { status.textContent = '连接失败：' + err.message; }); }); return; } var send = root.querySelector('#sendAI'); if (send) send.addEventListener('click', function () { sendAI(root); }); var input = root.querySelector('#aiInput'); if (input) input.addEventListener('keydown', function (e) { if (e.key === 'Enter') sendAI(root); }); var clear = root.querySelector('#clearChat'); if (clear) clear.addEventListener('click', function () { App.user.aiChatHistory = []; App.ui.saveUser(); renderAI(); }); }
+    function callAI(messages, override) {
+      var config = override || { key: decodeSecret(App.user.aiConfig.apiKey), base: App.user.aiConfig.baseUrl, model: App.user.aiConfig.model };
+      if (!config.key) return Promise.reject(new Error('尚未配置 API Key'));
+      var controller = new AbortController();
+      var timeout = setTimeout(function () { controller.abort(); }, 30000);
+      var payload = { model: config.model, messages: [{ role: 'system', content: AI_SYSTEM_PROMPT }].concat(messages), stream: true };
+      return fetch(config.base.replace(/\/$/, '') + '/chat/completions', {
+        method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + config.key },
+        body: JSON.stringify(payload), signal: controller.signal
+      }).then(function (response) {
+        if (!response.ok) return response.text().then(function (body) { throw new Error('API ' + response.status + ': ' + body.slice(0, 120)); });
+        var contentType = response.headers.get('content-type') || '';
+        if (!response.body || contentType.indexOf('text/event-stream') === -1) return response.json().then(function (json) { return json.choices && json.choices[0] && json.choices[0].message ? json.choices[0].message.content : '模型没有返回可读内容。'; });
+        var reader = response.body.getReader(); var decoder = new TextDecoder(); var result = '';
+        function read() { return reader.read().then(function (chunk) { if (chunk.done) return result; decoder.decode(chunk.value, { stream: true }).split('\n').forEach(function (line) { if (line.indexOf('data:') !== 0) return; var data = line.slice(5).trim(); if (data === '[DONE]') return; try { var delta = JSON.parse(data).choices[0].delta.content; if (delta) result += delta; } catch (e) {} }); return read(); }); }
+        return read();
+      }).catch(function (error) { if (error.name === 'AbortError') throw new Error('请求超时，请检查网络或模型服务。'); throw error; }).finally(function () { clearTimeout(timeout); });
+    }
+
+    function localAIReply(prompt) { var p = prompt.toLowerCase(); if (p.indexOf('法规') >= 0 || p.indexOf('避碰') >= 0) return '建议优先核对《1972年国际海上避碰规则》第五条、第八条和第十九条，并结合当时能见度、CPA/TCPA、通信记录复核。法律适用结论仅供参考。'; if (p.indexOf('雾') >= 0 || p.indexOf('风险') >= 0) return '风险预判：中高。关键因子包括低能见度、目标识别延迟和船流密度。建议降低航速、强化正规瞭望、连续标绘并提前发布安全提醒。'; return '可从人、船、环境、管理四个维度复盘：先固定时间线和证据，再区分直接原因与系统性原因，最后把措施转成责任对象、期限和验证证据。'; }
+    function sendAI(root) { var input = root.querySelector('#aiInput'); var prompt = input.value.trim(); if (!prompt) return; var messages = App.user.aiChatHistory || []; messages.push({ role: 'user', content: prompt }); App.user.aiChatHistory = messages; App.ui.saveUser(); input.value = ''; root.querySelector('#aiTyping').hidden = false; var box = root.querySelector('#chatMessages'); box.innerHTML += '<div class="chat-message user">' + safe(prompt) + '</div>'; var request = App.user.aiConfig.apiKey ? callAI(messages.slice(-8)) : Promise.resolve(localAIReply(prompt) + (App.state.aiTab === 'judgment' ? '\n\n本结果由AI生成，仅供学习参考，不构成任何法律意见或处罚依据。' : '')); request.then(function (answer) { App.user.aiChatHistory.push({ role: 'assistant', content: answer }); App.user.aiUses += 1; App.ui.saveUser(); root.querySelector('#aiTyping').hidden = true; renderAI(); }).catch(function (error) { root.querySelector('#aiTyping').hidden = true; App.ui.toast(error.message); }); }
+
+    /* ===== 用户面板 ===== */
+    App.userPanel = { render: function () { var el = document.getElementById('userPanel'); if (!el) return; var unlocked = ACHIEVEMENTS.map(function (a) { return '<div class="achievement ' + (a.test(App.user) ? '' : 'locked') + '" title="' + safe(a.condition) + '">' + a.icon + '<br>' + safe(a.title) + '</div>'; }).join(''); el.innerHTML = '<div class="profile-head"><span class="avatar-orb profile-avatar" id="profileAvatar">' + safe((App.user.username || '航').charAt(0)) + '</span><div><h3>' + safe(App.user.username) + '</h3><p class="text-muted">' + safe(App.user.title) + '</p><div class="preset-row"><button class="preset-avatar" data-avatar="✦" type="button">✦</button><button class="preset-avatar" data-avatar="✎" type="button">✎</button><button class="preset-avatar" data-avatar="◈" type="button">◈</button><button class="preset-avatar" data-avatar="⚖" type="button">⚖</button><button class="preset-avatar" data-avatar="☼" type="button">☼</button><button class="preset-avatar" id="uploadAvatar" type="button">↑</button></div></div></div><div class="profile-fields"><label>用户名<input id="profileName" value="' + safe(App.user.username) + '"></label><label>身份标签<input id="profileTitle" value="' + safe(App.user.title) + '"></label><label>所属单位<input id="profileOrg" value="' + safe(App.user.organization) + '" placeholder="填写所属单位"></label><label>入职时间<input id="profileDate" type="date" value="' + safe(App.user.joinDate) + '"></label></div><div class="panel-section"><h3>学习数据</h3><div class="stats-grid"><div class="mini-stat"><strong>' + App.user.readCases.length + '</strong><span>已阅读</span></div><div class="mini-stat"><strong>' + App.user.favoriteCases.length + '</strong><span>收藏</span></div><div class="mini-stat"><strong>' + App.user.completedCourses.length + '</strong><span>课程</span></div><div class="mini-stat"><strong>' + App.user.streakDays + '</strong><span>连续天数</span></div></div></div><div class="panel-section"><h3>成就徽章</h3><div class="achievement-grid">' + unlocked + '</div></div><div class="panel-section"><h3>设置</h3><div class="setting-row"><span>背景动效</span><button id="toggleAnimations" type="button">' + (App.user.settings.animations ? '已开启' : '已关闭') + '</button></div><div class="setting-row"><span>音效</span><button id="toggleSound" type="button">' + (App.user.settings.sound ? '已开启' : '已关闭') + '</button></div><div class="setting-row"><span>字体大小</span><button id="fontSizeToggle" type="button">' + App.user.settings.fontSize + '</button></div><div class="setting-row"><span>昼夜模式</span><button id="panelTheme" type="button">切换</button></div></div><div class="panel-actions"><button class="btn btn-ghost" id="exportUser" type="button">导出本地数据</button><button class="btn btn-ghost" id="clearUser" type="button">清空数据</button><button class="btn btn-ghost" id="resetUser" type="button">重置为航海者</button></div>'; bindUserPanel(el); }, open: function () { var el = document.getElementById('userPanel'); el.classList.add('open'); el.setAttribute('aria-hidden', 'false'); document.getElementById('userToggle').setAttribute('aria-expanded', 'true'); }, close: function () { var el = document.getElementById('userPanel'); el.classList.remove('open'); el.setAttribute('aria-hidden', 'true'); document.getElementById('userToggle').setAttribute('aria-expanded', 'false'); } };
+    function bindUserPanel(el) { ['profileName', 'profileTitle', 'profileOrg', 'profileDate'].forEach(function (id) { var node = el.querySelector('#' + id); node.addEventListener('change', function () { var key = id === 'profileName' ? 'username' : id === 'profileTitle' ? 'title' : id === 'profileOrg' ? 'organization' : 'joinDate'; App.user[key] = this.value; App.ui.saveUser(); App.ui.toast('资料已保存'); }); }); el.querySelectorAll('[data-avatar]').forEach(function (b) { b.addEventListener('click', function () { App.user.avatar = ''; App.user.avatarType = this.dataset.avatar; App.ui.saveUser(); App.userPanel.render(); }); }); el.querySelector('#uploadAvatar').addEventListener('click', function () { document.getElementById('avatarUpload').click(); }); el.querySelector('#toggleAnimations').addEventListener('click', function () { App.user.settings.animations = !App.user.settings.animations; document.getElementById('bubbleField').style.display = App.user.settings.animations ? '' : 'none'; App.ui.saveUser(); }); el.querySelector('#toggleSound').addEventListener('click', function () { App.user.settings.sound = !App.user.settings.sound; App.ui.saveUser(); App.ui.toast(App.user.settings.sound ? '音效已开启（轻触按钮试听）' : '音效已关闭'); }); el.querySelector('#fontSizeToggle').addEventListener('click', function () { var order = ['small', 'medium', 'large']; var i = (order.indexOf(App.user.settings.fontSize) + 1) % order.length; App.user.settings.fontSize = order[i]; document.documentElement.style.fontSize = order[i] === 'small' ? '14px' : order[i] === 'large' ? '17px' : '16px'; App.ui.saveUser(); App.userPanel.render(); }); el.querySelector('#panelTheme').addEventListener('click', function () { App.theme.toggle(); }); el.querySelector('#exportUser').addEventListener('click', function () { downloadJSON('maritime-user-data.json', App.user); }); el.querySelector('#clearUser').addEventListener('click', function () { if (window.confirm('确定清空本地学习数据吗？')) { App.user.readCases = []; App.user.favoriteCases = []; App.user.completedCourses = []; App.user.aiChatHistory = []; App.ui.saveUser(); App.userPanel.render(); } }); el.querySelector('#resetUser').addEventListener('click', function () { if (window.confirm('确定重置为航海者吗？')) { App.user = Object.assign({}, DEFAULT_USER, { settings: Object.assign({}, DEFAULT_USER.settings) }); App.ui.saveUser(); App.userPanel.render(); } }); }
+
+    /* ===== 主题、路由与动效 ===== */
+    App.theme = { icons: { day: '<svg viewBox="0 0 24 24"><path d="M12 3v1.5M12 19.5V21M4.22 4.22l1.06 1.06M18.72 18.72l1.06 1.06M3 12h1.5M19.5 12H21M4.22 19.78l1.06-1.06M18.72 5.28l1.06-1.06M12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10Z"/></svg>', night: '<svg viewBox="0 0 24 24"><path d="M20.5 15.2A8.5 8.5 0 0 1 8.8 3.5 8.5 8.5 0 1 0 20.5 15.2Z"/></svg>' }, init: function () { var saved = App.user.settings.theme || App.store.get(App.CONFIG.localStorageKeys.theme, 'day'); this.setTheme(saved === 'night' ? 'night' : 'day'); document.getElementById('themeToggle').addEventListener('click', this.toggle.bind(this)); }, setTheme: function (theme) { App.user.settings.theme = theme === 'night' ? 'night' : 'day'; document.body.classList.toggle('night-mode', App.user.settings.theme === 'night'); var b = document.getElementById('themeToggle'); b.setAttribute('aria-pressed', App.user.settings.theme === 'night' ? 'true' : 'false'); b.setAttribute('aria-label', App.user.settings.theme === 'night' ? '切换日间模式' : '切换夜间模式'); b.querySelector('.theme-icon').innerHTML = App.user.settings.theme === 'night' ? this.icons.day : this.icons.night; App.store.set(App.CONFIG.localStorageKeys.theme, App.user.settings.theme); App.store.set(App.CONFIG.localStorageKeys.user, App.user); window.dispatchEvent(new CustomEvent('themechange', { detail: { theme: App.user.settings.theme } })); }, toggle: function () { this.setTheme(App.user.settings.theme === 'night' ? 'day' : 'night'); } };
+    App.router = { routes: ['home', 'cases', 'case', 'risk', 'regs', 'learning', 'stats', 'emergency', 'ai', 'safety', 'credit', 'about'], init: function () { window.addEventListener('hashchange', this.handleRoute.bind(this)); this.handleRoute(); }, navigate: function (path) { window.location.hash = path; }, handleRoute: function () { var hash = window.location.hash.slice(1) || '/home'; var parts = hash.split('/').filter(Boolean); var route = parts[0] || 'home'; if (this.routes.indexOf(route) < 0) route = '404'; App.state.currentRoute = route; App.state.currentCaseId = route === 'case' ? parts[1] : null; document.querySelectorAll('.view').forEach(function (view) { view.classList.remove('active'); }); var view = document.getElementById('view-' + (route === 'case' ? 'case-detail' : route)); if (view) view.classList.add('active'); var active = route === 'case' ? 'cases' : route; document.querySelectorAll('.nav-link, .mobile-nav-link').forEach(function (link) { var on = link.dataset.route === active; link.classList.toggle('active', on); if (on) link.setAttribute('aria-current', 'page'); else link.removeAttribute('aria-current'); }); document.getElementById('mobileMenu').classList.remove('open'); document.getElementById('mobileMenu').setAttribute('aria-hidden', 'true'); document.getElementById('hamburger').setAttribute('aria-expanded', 'false'); window.scrollTo({ top: 0, behavior: App.state.reducedMotion ? 'auto' : 'smooth' }); clearCharts(); if (route === 'home') renderHome(); else if (route === 'cases') renderCases(); else if (route === 'case') renderCaseDetail(parts[1]); else if (route === 'risk') renderRisk(); else if (route === 'regs') renderRegs(); else if (route === 'learning') renderLearning(); else if (route === 'stats') renderStats(); else if (route === 'emergency') renderEmergency(); else if (route === 'ai') renderAI(); else if (route === 'safety') renderReserved('safety', '航行安全信息', '航行警告、潮汐和安全专栏建设中', 'risk'); else if (route === 'credit') renderReserved('credit', '信用与公示', '海事信用和企业公示建设中', 'about'); else if (route === 'about') renderAbout(); }
+    };
+    function initBackground() { var field = document.getElementById('particleField'); for (var i = 0; i < 18; i++) { var p = document.createElement('i'); p.className = 'particle'; p.style.left = Math.random() * 100 + '%'; p.style.top = Math.random() * 100 + '%'; p.style.animationDelay = (-Math.random() * 12) + 's'; field.appendChild(p); } var bubbleField = document.getElementById('bubbleField'); function bubble() { if (!App.user.settings.animations || document.querySelectorAll('.bubble').length > 12) return; var b = document.createElement('i'); b.className = 'bubble'; b.style.left = Math.random() * 100 + '%'; b.style.bottom = '-20px'; b.style.animationDuration = (7 + Math.random() * 9) + 's'; b.addEventListener('click', function () { b.style.transform = 'scale(2)'; b.style.opacity = '0'; setTimeout(function () { b.remove(); }, 180); }); bubbleField.appendChild(b); setTimeout(function () { if (b.parentNode) b.remove(); }, 18000); } setInterval(bubble, 1300); }
+    function initSprites() { document.querySelectorAll('.sprite').forEach(function (sprite) { sprite.addEventListener('click', function () { var route = this.dataset.route; this.classList.add('fly'); setTimeout(function () { sprite.classList.remove('fly'); App.router.navigate('/' + route); }, 520); }); }); }
+    function initUser() { updateNavUser(); App.userPanel.render(); var toggle = document.getElementById('userToggle'); toggle.addEventListener('click', function (e) { e.stopPropagation(); var open = document.getElementById('userPanel').classList.contains('open'); if (open) App.userPanel.close(); else App.userPanel.open(); }); document.addEventListener('click', function (e) { if (!e.target.closest('.user-tools')) App.userPanel.close(); }); document.getElementById('avatarUpload').addEventListener('change', function () { var file = this.files && this.files[0]; if (!file) return; var reader = new FileReader(); reader.onload = function () { App.user.avatar = reader.result; App.user.avatarType = 'custom'; App.ui.saveUser(); App.userPanel.render(); App.ui.toast('自定义头像已保存'); }; reader.readAsDataURL(file); }); }
+    function initNavbar() { window.addEventListener('scroll', App.utils ? App.utils.throttle(function () { document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 50); var max = document.documentElement.scrollHeight - window.innerHeight; document.getElementById('readingProgress').style.width = (max > 0 ? window.scrollY / max * 100 : 0) + '%'; }, 100) : function () {}); document.querySelectorAll('.nav-link, .mobile-nav-link').forEach(function (link) { link.addEventListener('click', function (e) { e.preventDefault(); App.router.navigate('/' + this.dataset.route); }); }); document.getElementById('hamburger').addEventListener('click', function () { var menu = document.getElementById('mobileMenu'); var open = menu.classList.toggle('open'); menu.setAttribute('aria-hidden', open ? 'false' : 'true'); this.setAttribute('aria-expanded', open ? 'true' : 'false'); }); var search = document.getElementById('navSearch'); search.addEventListener('keydown', function (e) { if (e.key === 'Enter') { App.state.caseKeyword = this.value.trim(); App.router.navigate('/cases'); } }); document.getElementById('backHome').addEventListener('click', function () { App.router.navigate('/home'); }); }
+    App.utils = { debounce: function (fn, delay) { var timer; return function () { var ctx = this, args = arguments; clearTimeout(timer); timer = setTimeout(function () { fn.apply(ctx, args); }, delay); }; }, throttle: function (fn, limit) { var busy = false; return function () { if (busy) return; busy = true; fn.apply(this, arguments); setTimeout(function () { busy = false; }, limit); }; } };
+    function initShortcuts() { var sequence = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a']; window.addEventListener('keydown', function (e) { var mod = e.ctrlKey || e.metaKey; if (mod && e.key.toLowerCase() === 'k') { e.preventDefault(); document.getElementById('navSearch').focus(); } if (mod && e.key.toLowerCase() === 'i') { e.preventDefault(); App.router.navigate('/ai'); } if (mod && /^[1-9]$/.test(e.key)) { e.preventDefault(); var routes = ['home', 'cases', 'risk', 'regs', 'learning', 'stats', 'emergency', 'ai', 'about']; App.router.navigate('/' + routes[Number(e.key) - 1]); } if (e.key === '?') App.ui.toast('Ctrl/⌘+K 搜索 · Ctrl/⌘+I AI · Ctrl/⌘+1~9 切换模块'); sequence.forEach(function (key, index) { if (e.key === key) App.state.konami.push(key); }); if (App.state.konami.slice(-sequence.length).join('|') === sequence.join('|')) { document.body.classList.add('konami-shake'); setTimeout(function () { document.body.classList.remove('konami-shake'); }, 3000); App.ui.toast('风浪模式已开启'); } }); }
+    function initResize() { window.addEventListener('resize', App.utils.debounce(resizeCharts, 180)); }
+
+    /* ===== 启动 ===== */
+    document.addEventListener('DOMContentLoaded', function () { App.theme.init(); initBackground(); initSprites(); initUser(); initNavbar(); initShortcuts(); initResize(); App.router.init(); setTimeout(function () { document.getElementById('loadingOverlay').classList.add('done'); }, App.state.reducedMotion ? 0 : 1200); console.log('海事知识库魔法海域已加载'); });
+  }());
+  </script>
+</html>
