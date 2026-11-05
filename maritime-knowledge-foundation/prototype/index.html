@@ -9,7 +9,7 @@
     :root { --ink:#06141d; --deep:#081d28; --sea:#0d5260; --mist:#eef4f1; --muted:#a5bec0; --signal:#e8b866; --line:rgba(226,244,238,.18); }
     * { box-sizing:border-box; }
     body { margin:0; min-height:100vh; color:var(--mist); background:var(--ink); font-family: Inter, "PingFang SC", "Microsoft YaHei", sans-serif; }
-    .shell { min-height:100vh; overflow:hidden; position:relative; isolation:isolate; background-image:linear-gradient(90deg, rgba(3,11,16,.82) 0%, rgba(3,16,22,.55) 48%, rgba(3,11,16,.28) 100%), url("https://www.bundeswirtschaftsministerium.de/Redaktion/FR/Bilder/Sujets/maritime-wirtschaft.jpg?__blob=normal&v=1"); background-position:center; background-size:cover; background-repeat:no-repeat; }
+    .shell { min-height:100vh; overflow:hidden; position:relative; isolation:isolate; background-image:linear-gradient(90deg, rgba(3,11,16,.82) 0%, rgba(3,16,22,.55) 48%, rgba(3,11,16,.28) 100%), url("https://commons.wikimedia.org/wiki/Special:FilePath/Ocean_Container_Ship_in_Sarangani_Bay_(24805799856).jpg?width=2400"); background-position:center; background-size:cover; background-repeat:no-repeat; }
     .shell::before { content:""; position:absolute; inset:-20%; z-index:-2; opacity:.75; background:linear-gradient(180deg, rgba(2,12,18,.08), rgba(2,12,18,.42)), linear-gradient(105deg, transparent 30%, rgba(228,183,101,.13) 52%, transparent 70%); animation: drift 18s ease-in-out infinite alternate; }
     .shell::after { content:""; position:absolute; inset:0; z-index:-1; pointer-events:none; background:linear-gradient(90deg, rgba(2,11,17,.55), transparent 44%, rgba(4,13,18,.25)); }
     @keyframes drift { from { transform:translate3d(-2%, 1%, 0) rotate(-1deg) scale(1.05); } to { transform:translate3d(2%, -2%, 0) rotate(1deg) scale(1.1); } }
@@ -49,7 +49,7 @@
         <a class="module" href="#notes"><small>04 / MY NOTES</small><strong>我的资料</strong><span>↗</span></a>
       </div>
       <div class="coordinates">31°13′N　121°29′E　/　CALM SEA　/　FIELD NOTES</div>
-    <p class="source-note">背景图：德国联邦经济与气候保护部 · Maritime Economy</p>
+    <p class="source-note">背景图：Ocean Container Ship in Sarangani Bay · Wikimedia Commons · CC0</p>
     </section>
   </main>
 </body>
