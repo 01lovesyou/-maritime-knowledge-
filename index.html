@@ -542,6 +542,31 @@
     body:not(.home-view) .glass-card { background:rgba(250,253,251,.84); border-color:rgba(33,73,62,.14); }
     @media(max-width:767px) { body.home-view .brand-title { font-size:16px; } body.home-view .nav-inner { justify-content:flex-start; } body.home-view #navbar { right:0; } .view:not(#view-home) { padding-top:16px; } body:not(.home-view) #app > .view > div { padding:14px; border-radius:12px; } }
 
+
+    /* 内容页扁平化：保留信息层级，移除装饰卡片 */
+    body:not(.home-view) { background-image:linear-gradient(rgba(235,242,240,.28),rgba(235,242,240,.28)),url('assets/maritime-home.png'); }
+    body:not(.home-view) #navbar { background:rgba(236,243,241,.28); border-bottom:1px solid rgba(31,62,55,.16); box-shadow:none; }
+    body:not(.home-view) .nav-inner { max-width:1220px; }
+    body:not(.home-view) .brand { background:transparent; border:0; box-shadow:none; padding:0; }
+    body:not(.home-view) .brand-title, body.home-view .brand-title { font-size:20px; letter-spacing:.01em; }
+    .compass-icon, .brand-subtitle, .avatar-orb, #themeToggle, .theme-icon { display:none !important; }
+    .user-tools, #userToggle { background:transparent !important; border:0 !important; box-shadow:none !important; }
+    body:not(.home-view) .nav-tools { background:transparent; border:0; box-shadow:none; padding:0; }
+    body:not(.home-view) .nav-search { width:180px; color:#173731; background:transparent; border:0; border-bottom:1px solid rgba(31,62,55,.4); border-radius:0; box-shadow:none; }
+    body:not(.home-view) .nav-search:focus { width:220px; border-color:#173731; box-shadow:none; }
+    body:not(.home-view) #app > .view > div { padding:24px 0 48px; background:transparent; border-radius:0; backdrop-filter:none; }
+    body:not(.home-view) .glass-card { background:transparent; border:0; border-radius:0; box-shadow:none; backdrop-filter:none; }
+    body:not(.home-view) .glass-card:hover { transform:none; box-shadow:none; border-color:transparent; }
+    body:not(.home-view) .section-title { border:0; }
+    body:not(.home-view) .hero, body:not(.home-view) .detail-hero { padding:22px 0 30px; background:transparent; border-bottom:1px solid rgba(31,62,55,.18); }
+    body:not(.home-view) .latest-list, body:not(.home-view) .risk-list, body:not(.home-view) .reg-grid, body:not(.home-view) .risk-grid, body:not(.home-view) .resource-grid, body:not(.home-view) .quick-grid { gap:0; }
+    body:not(.home-view) .latest-card, body:not(.home-view) .risk-card, body:not(.home-view) .reg-card, body:not(.home-view) .risk-card-large, body:not(.home-view) .side-card, body:not(.home-view) .quick-entry { padding:22px 0; border-bottom:1px solid rgba(31,62,55,.16); }
+    body:not(.home-view) .quick-entry { text-align:left; }
+    body:not(.home-view) .chart-card, body:not(.home-view) .map-panel, body:not(.home-view) .detail-section, body:not(.home-view) .insight { padding:22px 0; border-bottom:1px solid rgba(31,62,55,.16); }
+    body:not(.home-view) .badge, body:not(.home-view) .tag { background:transparent; border:0; padding-left:0; }
+    body:not(.home-view) .btn { border-radius:0; background:transparent; border:0; border-bottom:1px solid currentColor; padding-left:0; padding-right:0; }
+    @media(max-width:767px) { body:not(.home-view) .brand-title { font-size:18px; } body:not(.home-view) .nav-search { width:120px; } body:not(.home-view) #app > .view > div { padding:14px 0 30px; } }
+
   </style>
 </head>
 <body>
