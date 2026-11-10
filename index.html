@@ -516,6 +516,32 @@
     @media(max-width:767px) { body.home-view .nav-inner { margin-top:11px; padding:0 16px; } .landing-image { background-position:58% center; } .landing-copy { padding-top:190px; } .landing h1 { font-size:clamp(54px,16vw,94px); } .landing-bottom { padding:60px 18px 20px; } .landing-links { display:grid; grid-template-columns:1fr 1fr; gap:6px; } .landing-link { width:auto; padding:10px 12px; } }
     @media(prefers-reduced-motion:reduce) { .landing-image { animation:none; } }
 
+
+    /* 极简统一视觉：所有页面共享同一张海浪影像 */
+    body { background:#dce7e5 url('assets/maritime-home.png') center / cover fixed no-repeat; }
+    body.home-view { overflow:hidden; }
+    body.home-view .brand, body.home-view .nav-tools { padding:0; background:transparent; border:0; box-shadow:none; backdrop-filter:none; }
+    body.home-view .brand { color:#193b35; }
+    body.home-view .brand-title { font-size:17px; letter-spacing:.01em; }
+    body.home-view .brand-subtitle, body.home-view .compass-icon { display:none; }
+    body.home-view .nav-tools { min-width:0; }
+    body.home-view #navbar { width:auto; right:0; }
+    body.home-view .nav-inner { justify-content:flex-start; }
+    body.home-view .landing-links { width:min(970px,100%); justify-content:center; margin:0 auto; }
+    body.home-view .landing-link { flex:1 1 0; max-width:242px; }
+    #spriteLayer, #bg-effects { display:none !important; }
+    footer { display:none !important; }
+    .view:not(#view-home) { min-height:calc(100vh - 86px); padding:28px 0 40px; }
+    body:not(.home-view) #navbar { position:sticky; top:0; background:rgba(242,247,245,.82); border-bottom:1px solid rgba(31,62,55,.12); box-shadow:0 5px 22px rgba(24,48,43,.08); backdrop-filter:blur(16px); }
+    body:not(.home-view) .brand { color:#193b35; }
+    body:not(.home-view) .brand-subtitle { color:#6b827b; }
+    body:not(.home-view) .main-nav { color:#36544c; }
+    body:not(.home-view) .nav-link { color:#36544c; }
+    body:not(.home-view) #app { padding-top:0; }
+    body:not(.home-view) #app > .view > div { background:rgba(242,247,245,.76); border-radius:18px; padding:22px; backdrop-filter:blur(8px); }
+    body:not(.home-view) .glass-card { background:rgba(250,253,251,.84); border-color:rgba(33,73,62,.14); }
+    @media(max-width:767px) { body.home-view .brand-title { font-size:16px; } body.home-view .nav-inner { justify-content:flex-start; } body.home-view #navbar { right:0; } .view:not(#view-home) { padding-top:16px; } body:not(.home-view) #app > .view > div { padding:14px; border-radius:12px; } }
+
   </style>
 </head>
 <body>
