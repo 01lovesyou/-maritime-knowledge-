@@ -484,6 +484,38 @@
     @media(max-width:767px) { body.home-view .nav-inner { margin-top:12px; padding:0 16px; } body.home-view .nav-tools { margin-left:auto; } body.home-view .landing-copy { padding-top:150px; padding-bottom:330px; } .landing-image { background-position:65% bottom; } .landing-copy p { font-size:14px; } .landing-links { display:grid; grid-template-columns:1fr 1fr; gap:8px; } .landing-link { width:auto; padding:8px 14px; } .landing-bottom { padding:55px 20px 18px; } }
     @media(prefers-reduced-motion:reduce) { .landing-image { animation:none; } }
 
+
+    /* Apple-like maritime landing */
+    body.home-view { background:#e9eeec; color:#19302c; }
+    body.home-view #bg-effects, body.home-view #spriteLayer, body.home-view #readingProgress { display:none; }
+    body.home-view #app { max-width:none; padding:0; }
+    body.home-view #navbar { position:absolute; background:transparent; border:0; box-shadow:none; }
+    body.home-view .nav-inner { max-width:1220px; margin:18px auto 0; padding:0 24px; }
+    body.home-view .main-nav { display:none; }
+    body.home-view .brand, body.home-view .nav-tools { padding:7px 13px; color:#193b35; background:rgba(249,251,249,.72); border:1px solid rgba(30,60,52,.13); border-radius:13px; box-shadow:0 5px 24px rgba(25,48,44,.06); backdrop-filter:blur(14px); }
+    body.home-view .brand-title { font-size:15px; } body.home-view .brand-subtitle { font-size:8px; }
+    body.home-view .compass-icon { width:28px; height:28px; animation:none; }
+    body.home-view .nav-tools { margin-left:auto; } body.home-view .nav-search, body.home-view #themeToggle, body.home-view #userToggle { display:none; }
+    .landing { position:relative; min-height:100vh; overflow:hidden; display:flex; justify-content:center; isolation:isolate; background:#dce7e5; }
+    .landing-image { position:absolute; inset:-3%; z-index:-2; background:url('assets/maritime-home.png') center/cover no-repeat; animation:landing-drift 34s ease-in-out infinite alternate; }
+    .landing::before { content:''; position:absolute; inset:0; z-index:-1; background:linear-gradient(180deg,rgba(244,248,246,.64) 0%,rgba(244,248,246,.14) 37%,rgba(7,42,45,.05) 60%,rgba(5,27,30,.56) 100%); }
+    .landing::after { content:''; position:absolute; inset:0; z-index:-1; pointer-events:none; background:linear-gradient(90deg,rgba(255,255,255,.08),transparent 45%,rgba(255,255,255,.12)); }
+    @keyframes landing-drift { from { transform:scale(1.03) translate3d(-.7%,0,0); } to { transform:scale(1.09) translate3d(.7%,-.6%,0); } }
+    .landing-copy { width:min(900px,calc(100% - 40px)); padding-top:clamp(170px,26vh,245px); text-align:center; }
+    .landing-eyebrow { display:none; }
+    .landing h1 { margin:0; color:#172d29; font-family:Inter,"Helvetica Neue",Arial,sans-serif; font-size:clamp(60px,10vw,148px); font-weight:400; line-height:.94; letter-spacing:-.065em; }
+    .landing h1 .landing-subtitle { display:block; margin-top:18px; font-size:.5em; letter-spacing:-.045em; }
+    .landing-copy p, .landing-actions { display:none; }
+    .landing-bottom { position:absolute; right:0; bottom:0; left:0; padding:92px 34px 30px; background:linear-gradient(transparent,rgba(4,28,30,.76)); }
+    .landing-links { display:flex; justify-content:center; max-width:970px; margin:auto; }
+    .landing-link { width:25%; padding:13px 22px; text-align:left; color:#fff; background:none; border:0; border-left:1px solid rgba(255,255,255,.34); cursor:pointer; }
+    .landing-link span { display:block; margin-bottom:8px; color:rgba(255,255,255,.68); font-size:10px; letter-spacing:.14em; }
+    .landing-link strong { font-size:16px; font-weight:400; letter-spacing:.02em; }
+    .landing-link:hover strong { color:#dcefe8; }
+    .landing-caption { margin:21px 0 0; color:rgba(255,255,255,.55); font-size:10px; letter-spacing:.19em; text-align:center; }
+    @media(max-width:767px) { body.home-view .nav-inner { margin-top:11px; padding:0 16px; } .landing-image { background-position:58% center; } .landing-copy { padding-top:190px; } .landing h1 { font-size:clamp(54px,16vw,94px); } .landing-bottom { padding:60px 18px 20px; } .landing-links { display:grid; grid-template-columns:1fr 1fr; gap:6px; } .landing-link { width:auto; padding:10px 12px; } }
+    @media(prefers-reduced-motion:reduce) { .landing-image { animation:none; } }
+
   </style>
 </head>
 <body>
@@ -653,11 +685,7 @@
     function resizeCharts() { App.state.chartInstances.forEach(function (chart) { chart.resize(); }); }
 
     /* ===== 首页驾驶舱 ===== */
-    function renderHome() {
-      var el = document.getElementById('homeContent');
-      el.innerHTML = '<div class="landing"><div class="landing-image" aria-hidden="true"></div><div class="landing-copy"><div class="landing-eyebrow">MARITIME KNOWLEDGE · 安全航行</div><h1 id="title-home">从每一次经历中<br>读懂海洋</h1><p>汇集事故复盘、海事法规与航行经验，<br>让每一次学习，都成为下一次安全航行的起点。</p><div class="landing-actions"><button class="route-button" data-route="cases" type="button">探索事故案例　↗</button><button class="route-button" data-route="regs" type="button">查阅规章法规　→</button></div></div><div class="landing-bottom"><div class="landing-links"><button class="landing-link route-button" data-route="cases" type="button"><span>01 / CASES</span><strong>事故案例　↗</strong></button><button class="landing-link route-button" data-route="risk" type="button"><span>02 / RISK</span><strong>风险预警　↗</strong></button><button class="landing-link route-button" data-route="regs" type="button"><span>03 / REGULATIONS</span><strong>规章法规　↗</strong></button><button class="landing-link route-button" data-route="learning" type="button"><span>04 / LEARNING</span><strong>知识学习　↗</strong></button></div><div class="landing-caption">REVIEW · LEARN · NAVIGATE</div></div></div>';
-      routeButtons(el);
-    }
+    function renderHome() { var el = document.getElementById('homeContent'); el.innerHTML = '<div class="landing"><div class="landing-image" aria-hidden="true"></div><div class="landing-copy"><h1 id="title-home">The marine<span class="landing-subtitle">01lovesyou</span></h1></div><div class="landing-bottom"><div class="landing-links"><button class="landing-link route-button" data-route="cases" type="button"><span>01 / CASES</span><strong>事故案例　↗</strong></button><button class="landing-link route-button" data-route="risk" type="button"><span>02 / RISK</span><strong>风险预警　↗</strong></button><button class="landing-link route-button" data-route="regs" type="button"><span>03 / REGULATIONS</span><strong>规章法规　↗</strong></button><button class="landing-link route-button" data-route="learning" type="button"><span>04 / LEARNING</span><strong>知识学习　↗</strong></button></div><div class="landing-caption">MARITIME KNOWLEDGE BASE</div></div></div>'; routeButtons(el); }
     function animateNumber(element, target) { if (App.state.reducedMotion) { element.textContent = target.toLocaleString(); return; } var start = null; function step(time) { if (!start) start = time; var progress = Math.min((time - start) / 1200, 1); var eased = 1 - Math.pow(1 - progress, 3); element.textContent = Math.floor(eased * target).toLocaleString(); if (progress < 1) requestAnimationFrame(step); } requestAnimationFrame(step); }
 
     /* ===== 案例库与详情 ===== */
