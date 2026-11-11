@@ -567,6 +567,43 @@
     body:not(.home-view) .btn { border-radius:0; background:transparent; border:0; border-bottom:1px solid currentColor; padding-left:0; padding-right:0; }
     @media(max-width:767px) { body:not(.home-view) .brand-title { font-size:18px; } body:not(.home-view) .nav-search { width:120px; } body:not(.home-view) #app > .view > div { padding:14px 0 30px; } }
 
+
+    /* 功能页：暗色海景上使用克制的高对比文字 */
+    body:not(.home-view) {
+      --text-primary:#f5f4ee; --text-secondary:#e0e4df; --text-muted:#cbd4ce;
+      --color-primary:#edece3; --color-primary-light:#fffef8;
+      --color-warning-text:#f0e6d4; --color-danger:#f0dfd6;
+      --color-success:#d9e7da; --color-warning:#eee5d5;
+      --bg-primary:#101e21; --bg-secondary:#18282b; --bg-card:rgba(14,27,29,.88);
+      --bg-card-border:rgba(244,246,239,.3); --glow-primary:rgba(230,239,231,.16);
+      background-image:linear-gradient(rgba(4,13,16,.78),rgba(4,13,16,.78)),url('assets/maritime-home.png');
+      color:var(--text-primary);
+    }
+    body:not(.home-view) #navbar { background:rgba(8,19,21,.92); border-color:rgba(235,240,233,.2); }
+    body:not(.home-view) .brand, body:not(.home-view) .nav-link, body:not(.home-view) .main-nav,
+    body:not(.home-view) #userToggle { color:#f3f4ee; }
+    body:not(.home-view) .nav-link.active, body:not(.home-view) .nav-link:hover { color:#fff; }
+    body:not(.home-view) .nav-link::after { background:#d7ddd5; }
+    body:not(.home-view) .nav-search { color:#f5f4ee; border-color:rgba(236,241,234,.55); }
+    body:not(.home-view) .nav-search::placeholder { color:#cbd4ce; }
+    body:not(.home-view) .section-title, body:not(.home-view) h1, body:not(.home-view) h2,
+    body:not(.home-view) h3, body:not(.home-view) h4, body:not(.home-view) strong { color:#f5f4ee; }
+    body:not(.home-view) p, body:not(.home-view) small, body:not(.home-view) .text-muted,
+    body:not(.home-view) .breadcrumbs, body:not(.home-view) .detail-meta { color:#e0e4df; }
+    body:not(.home-view) a, body:not(.home-view) .tag, body:not(.home-view) .badge { color:#f0eee5; }
+    body:not(.home-view) .btn { color:#f5f4ee; }
+    body:not(.home-view) input, body:not(.home-view) select, body:not(.home-view) textarea {
+      color:#f7f7f2; background:rgba(12,25,27,.92); border:1px solid rgba(236,241,234,.55);
+    }
+    body:not(.home-view) input::placeholder, body:not(.home-view) textarea::placeholder { color:#cbd4ce; }
+    body:not(.home-view) option { color:#f7f7f2; background:#18282b; }
+    body:not(.home-view) .latest-card, body:not(.home-view) .risk-card, body:not(.home-view) .reg-card,
+    body:not(.home-view) .risk-card-large, body:not(.home-view) .detail-section,
+    body:not(.home-view) .chart-card, body:not(.home-view) .side-card { border-color:rgba(236,241,234,.3); }
+    body:not(.home-view) .user-panel, body:not(.home-view) #mobileMenu { background:#142426; color:#f5f4ee; }
+    body:not(.home-view) .risk-level-high, body:not(.home-view) .risk-level-medium,
+    body:not(.home-view) .risk-level-low { color:#f3e8db; }
+
   </style>
 </head>
 <body>
