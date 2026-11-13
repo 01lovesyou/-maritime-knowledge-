@@ -1,0 +1,10 @@
+{
+  "name": "海事知识库",
+  "short_name": "海事知识库",
+  "lang": "zh-CN",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#081416",
+  "theme_color": "#081416",
+  "description": "海事案例、风险预警、规章法规与学习资料单页知识库"
+}
