@@ -1,0 +1,50 @@
+{
+  "version": "2026-11-17",
+  "purpose": "事故案例来源登记。案例正文仅作知识整理，正式研判以发布机关现行原文为准。",
+  "cases": [
+    {
+      "id": "magia-harmony13-2025",
+      "title": "长江口“2·24”“MAGIA”轮与“HARMONY 13”轮碰撞事故",
+      "authority": "中华人民共和国上海海事局·吴淞海事局",
+      "document": "长江口“2·24”“MAGIA”轮与“HARMONY13”轮碰撞事故调查报告",
+      "reportNo": "MAIR010001202501",
+      "published": "2025-05-30",
+      "sourceUrl": "https://www.sh.msa.gov.cn/dbfile.svl?n=/u/cms/www/202602/251027121771986432857.pdf",
+      "evidence": [
+        "AIS数据",
+        "吴淞VTS监控录像",
+        "两船VDR数据",
+        "船员询问笔录",
+        "现场勘验"
+      ],
+      "responsibility": "MAGIA轮主要责任；HARMONY 13轮次要责任",
+      "sourceStatus": "已核验公开版原文"
+    },
+    {
+      "id": "eastern-star-2015",
+      "title": "“东方之星”号客轮翻沉事件",
+      "authority": "国务院调查组",
+      "document": "国务院批复的“东方之星”号客轮翻沉事件调查报告公开信息",
+      "published": "2015-12-30",
+      "sourceUrl": "https://www.cneb.gov.cn/2015/12/30/ARTI1451470321938558.shtml",
+      "evidence": [
+        "国务院调查报告公开信息",
+        "气象与船舶调查结论"
+      ],
+      "sourceStatus": "已核验公开信息；完整报告以官方发布为准"
+    },
+    {
+      "id": "sanchi-2018",
+      "title": "“桑吉”轮与“长峰水晶”轮碰撞燃爆事故",
+      "authority": "上海海事局相关公开信息",
+      "document": "官方事故处置与搜救公开信息",
+      "published": "2018-01",
+      "sourceUrl": "https://www.sh.msa.gov.cn/mtbd/92249.jhtml",
+      "evidence": [
+        "官方事故处置公开信息",
+        "搜救行动公开信息"
+      ],
+      "sourceStatus": "已核验官方公开信息；事故调查完整原文待补充"
+    }
+  ]
+}
